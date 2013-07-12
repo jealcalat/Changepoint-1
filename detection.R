@@ -1,8 +1,8 @@
 #### change point detection ####
 library(mcmcse)
 
-
-m<- 1	# number of change point
+args <- commandArgs(TRUE)
+m<- as.numeric(args[1])	# number of change point
 
 raw<- read.table("2change-point.txt")
 y<- raw[,1]
@@ -29,7 +29,7 @@ p6<- function(t, k, theta, P, mass){	# equition (6)
 	return(output)
 }
 
-thresh<- 1000
+thresh<- 50000	# threshold for checking stopping criteria
 
 while(1){
 	iter<- iter+1
@@ -74,15 +74,15 @@ while(1){
 	
 	# update theta
 	for(i in 1:(m+1)){
-		theta_cur[i]<- rgamma(1, m+1+sum(y[S_cur == i]), count[i]+1+1)
+		theta_cur[i]<- rgamma(1, m+1+sum(y[S_cur == i]), count[i]+2)
 	}
 	
 	P<- rbind(P, P_cur)
 	S<- rbind(S, S_cur)
 	theta<- rbind(theta, theta_cur)
-	write.table(P, "P.txt")
-	write.table(S, "S.txt")
-	write.table(theta, "theta.txt")
+	write.table(P, file = paste(m, "P.txt", sep=''))
+	write.table(S, file = paste(m, "S.txt", sep=''))
+	write.table(theta, file = paste(m, "theta.txt", sep=''))
 	
 	#store all parameters together
 	if(iter == 1){
@@ -92,12 +92,14 @@ while(1){
 		comb_cur<- c(P_cur, S_cur, theta_cur)
 		comb<- rbind(comb, comb_cur)
 	}
-	print(iter)
+	
 	if(iter > thresh){
 		comb_mcse<- mcse.mat(comb)[,2]
 		comb_sd<- apply(comb, 2, sd)
-		thresh<- thresh+100
-		if(prod((comb_mcse*1.645+1/iter) < 0.5*comb_sd)){
+		thresh<- thresh+5000
+		cond<- comb_mcse*1.645+1/iter < 0.1*comb_sd
+		write.table(cond, file = paste(m, "cond.txt", sep=''))
+		if(prod(cond)){
 			break
 		}
 	}

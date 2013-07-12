@@ -1,5 +1,5 @@
 #!/bin/bash
 
-cd $PBS_O_WORKDIR
-
-Rscript detection.R
+for i in `seq 1 2`; do
+echo "Rscript detection.R $i" | qsub -d `pwd`
+done;
