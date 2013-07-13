@@ -9,4 +9,4 @@ lambda2<- 5
 x1<- rpois(n1, lambda1)
 x2<- rpois(n2, lambda2)
 x<- c(x1, x2)	# combined sample
-write.table(x, "2change-point.txt")
+write.table(x, "change-point-2.txt")
