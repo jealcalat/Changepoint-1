@@ -17,7 +17,7 @@ P<- array(0.5, c(1, m+1))	# initial transition matrix
 P[1, m+1]<- 1
 theta<- array(n/(m+1), c(1, m+1))	# initial theta
 S<- array(0, c(1, n))	# initial S
-comb<- c(P[-c(m+1)], S[2:m], theta)	# exclude P[m+1] = 1 & S[1] = 1 & S[n] = m+1
+comb<- c(P[-c(m+1)], S[2:(n-1)], theta)	# exclude P[m+1] = 1 & S[1] = 1 & S[n] = m+1
 iter<- 0
 
 p6<- function(t, k, theta, P, mass){	# equition (6)
@@ -86,7 +86,7 @@ while(1){
 	write.table(theta, file = paste(m, "theta.txt", sep=''))
 	
 	#store all parameters together
-	comb_cur<- c(P_cur[-c(m+1)], S_cur[2:m], theta_cur)
+	comb_cur<- c(P_cur[-c(m+1)], S_cur[2:(n-1)], theta_cur)
 	comb<- rbind(comb, comb_cur)
 	
 	if(iter > thresh){
@@ -94,7 +94,7 @@ while(1){
 		comb_sd<- apply(comb, 2, sd)
 		thresh<- thresh+500
 		cond<- comb_mcse*1.645+1/iter < 0.1*comb_sd
-		write.table(cond, file = paste(m, "cond.txt", sep=''))
+		write.table(cond, file = paste(m, "cond.txt", sep=''), append = T)
 		if(prod(cond)){
 			break
 		}
