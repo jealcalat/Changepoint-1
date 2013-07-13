@@ -94,7 +94,7 @@ while(1){
 		comb_sd<- apply(comb, 2, sd)
 		thresh<- thresh+500
 		cond<- comb_mcse*1.645+1/iter < 0.1*comb_sd
-		write.table(cond, file = paste(m, "cond.txt", sep=''), append = TRUE)
+		write.table(cond, file = paste(m, "cond.txt", sep=''))
 		if(prod(cond)){
 			break
 		}
