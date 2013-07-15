@@ -1,4 +1,5 @@
 #### change point detection ####
+
 library(mcmcse)
 
 args <- commandArgs(TRUE)
@@ -21,6 +22,9 @@ comb<- c(P[-c(m+1)], S[2:(n-1)], theta)	# exclude P[m+1] = 1 & S[1] = 1 & S[n] =
 iter<- 0
 
 p6<- function(t, k, theta, P, mass){	# equition (6)
+	if(k == 0){
+		output<- 0
+	}
 	if(k == 1){
 		output<- P[k]*mass[t-1, k]
 	}
@@ -30,8 +34,9 @@ p6<- function(t, k, theta, P, mass){	# equition (6)
 	return(output)
 }
 
-thresh<- 1000	# threshold for checking stopping criteria
+thresh<- 10000	# threshold for checking stopping criteria
 
+# mcmc simulation
 while(1){
 	iter<- iter+1
 	P_cur<- P[iter, ]
@@ -43,16 +48,16 @@ while(1){
 	for(t in 1:n){
 		if(t == 1){
 			mass[1, 1]<- 1
-		}	
-		if(t > 1){
-			for(k in 1:(m+1)){
-				#temp<- p6(t, k, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k])+p6(t, k-1, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k-1])
-				mass[t, k]<- p6(t, k, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k])
-			}
-			#mass[t, 1]<- 1-sum(mass[t, -1])
-			mass[t,]<- mass[t,]/sum(mass[t,]) 
 		}
-	}
+		else{
+			for(k in 1:(m+1)){
+				temp<- p6(t, k, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k])+p6(t, k-1, theta_cur, P_cur, mass)*ppois(y[t], prod(theta_cur[k-1]))
+				mass[t, k]<- p6(t, k, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k])/temp
+			}
+				#mass[t, 1]<- 1-sum(mass[t, -1])
+				#mass[t,]<- mass[t,]/sum(mass[t,]) 
+			}
+		}
 	
 	# update S
 	S_cur[n]<- m+1
@@ -92,12 +97,11 @@ while(1){
 	if(iter > thresh){
 		comb_mcse<- mcse.mat(comb)[,2]
 		comb_sd<- apply(comb, 2, sd)
-		thresh<- thresh+500
+		thresh<- thresh+1000
 		cond<- comb_mcse*1.645+1/iter < 0.02*comb_sd
 		write.table(cond, file = paste(m, "cond.txt", sep=''), append = T)
 		if(prod(cond)){
 			break
 		}
 	}
-	
 }
