@@ -34,7 +34,7 @@ p6<- function(t, k, theta, P, mass){	# equition (6)
 	return(output)
 }
 
-thresh<- 10000	# threshold for checking stopping criteria
+thresh<- 5000	# threshold for checking stopping criteria
 
 # mcmc simulation
 while(1){

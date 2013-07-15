@@ -1,8 +1,8 @@
 #### Change point simulator for poisson distribution ####
 
 ## 2 change-point case ##
-n1<- 8
-n2<- 12
+n1<- 50
+n2<- 50
 lambda1<- 2
 lambda2<- 5
 
