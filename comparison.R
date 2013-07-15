@@ -47,8 +47,15 @@ S_post<- array(NA, c(G, n))
 P_post<- array(NA, c(G, m))
 P_update<- P_star
 S_plot<- array(0, c(G, n, m+1))
+time<- array(NA, c(G, m))
 
 for(i in 1:G){
+	# update time
+	for(j in 1:m){
+		time[i, j]<- ftable(S[i,])[j]
+	}
+	time[i,]<- cumsum(time[i,])
+	
 	# update theta_post
 	S_cur<- S[i,]
 	count<- ftable(S_cur)-1
@@ -133,3 +140,4 @@ ln_bayes<- ln_y_den+ln_theta_den+ln_P_den - log(theta_post_den)-log(P_post_den)
 write.table(ln_bayes, file = paste(m, "bayes.txt", sep = ''))
 S_plots<- apply(S_plot, c(2,3), mean)
 write.table(S_plots, file = paste(m, "Splots.txt", sep = ''))
+write.table(time, file = paste(m, "time.txt", sep = ''))
