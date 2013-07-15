@@ -46,6 +46,7 @@ theta_post<- array(NA, c(G, m+1))
 S_post<- array(NA, c(G, n))
 P_post<- array(NA, c(G, m))
 P_update<- P_star
+S_plot<- array(0, c(G, n, m+1))
 
 for(i in 1:G){
 	# update theta_post
@@ -57,15 +58,27 @@ for(i in 1:G){
 	
 	# update mass distribution
 	mass<- array(0, c(n, m+1))	# mass distribution for S
+	mass_plot<- array(0, c(n, m+1))
 	for(t in 1:n){
 		if(t == 1){
 			mass[1, 1]<- 1
+			mass_plot[1, 1]<- 1
+			S_plot[i, t, 1]<- 1
 		}
 		else{
 			for(k in 1:(m+1)){
 				temp<- p6(t, k, theta_star, P_update, mass)*ppois(y[t], theta_star[k])+p6(t, k-1, theta_star, P_update, mass)*ppois(y[t], prod(theta_star[k-1]))
 				mass[t, k]<- p6(t, k, theta_star, P_update, mass)*ppois(y[t], theta_star[k])/temp
+				
+				temp_plot<- p6(t, k, theta[i,], P[i,], mass_plot)*ppois(y[t], theta[i,k])+p6(t, k-1, theta[i,], P[i,], mass_plot)*ppois(y[t], prod(theta[i,k-1]))
+				mass_plot[t, k]<- p6(t, k, theta[i,], P[i,], mass_plot)*ppois(y[t], theta[i,k])/temp_plot
 			}
+			}
+		mass_plot[t,]<- mass_plot[t,]/sum(mass_plot[t,])
+	}
+	for(t in 2:n){
+		for(k in 1:(m+1)){
+			S_plot[i, t, k]<- p6(t, k, theta[i,], P[i,], mass_plot)
 		}
 	}
 	
@@ -118,3 +131,5 @@ ln_y_den<- sum(log(y_post))
 
 ln_bayes<- ln_y_den+ln_theta_den+ln_P_den - log(theta_post_den)-log(P_post_den)
 write.table(ln_bayes, file = paste(m, "bayes.txt", sep = ''))
+S_plots<- apply(S_plot, c(2,3), mean)
+write.table(S_plots, file = paste(m, "Splots.txt", sep = ''))

@@ -1,3 +1,1944 @@
+hist(M, 22, xlim=c(1989, 2010))
+hist(M, 22)
+plot(year, y, "l", xlab="year", ylab="count")
+barplot(q, names=1989:2010)
+hist(M, 22)
+q
+quantile(Theta1, c(0.1, 0.9))
+y<- c(4,7,10,6,7,16,11,12,15,4,8,6,6,17,9,8,10,11,6,10,11,6)#
+year<- seq(1989, 2010, 1)#
+n<- length(y)#
+#
+# prior#
+a1<- 0.5#
+a2<- 0.5#
+b1<- 0.01#
+b2<- 0.01#
+#
+par(mfrow=c(3,1))#
+plot(year, y, "l", xlab="year", ylab="count")#
+#
+log_gamma<- function(n){#
+	if(!(n%%1)){#
+		output<- 0#
+		for(i in 1:(n-1)){#
+			output<- output+log(i)#
+		}#
+		return(output)#
+	}#
+	else{#
+		n<- n-0.5#
+		output<- 0#
+		for(i in 1:n){#
+			output<- output+log(i)#
+		}#
+		output<- output+0.5*log(pi)+log(choose(n-0.5, n))#
+		return(output)	#
+	}#
+}#
+#
+log_q<- vector("numeric", n)#
+q<- vector("numeric", n)#
+for(m in 1:n){#
+	s1<- sum(y[1:m])#
+	s2<- sum(y)-s1#
+	log_q[m]<- log_gamma(s1+a1)-(s1+a1)*log(m+b1)+log_gamma(s2+a2)-(s2+a2)*log(n-m+b2)#
+	q[m]<- exp(log_q[m])#
+}#
+q<- q/sum(q)#
+barplot(q, names=1989:2010)#
+#
+B<- 5000#
+warm<- 500#
+M<- vector("numeric", B)#
+Theta1<- vector("numeric", B)#
+Theta2<<- vector("numeric", B)#
+#
+m_posterior<- function(theta1, theta2){#
+	m_prob<- vector("numeric", n)#
+	for(m in 1:n){#
+		s1<- sum(y[1:m])#
+		s2<- sum(y)-s1#
+		m_prob[m]<- (theta1/theta2)^s1*exp(m*(theta2-theta1))#
+	}#
+	m_prob<- m_prob/sum(m_prob)#
+	m_cum<- cumsum(m_prob)#
+	r<- runif(1)#
+	m<- min(which(m_cum > r))#
+	return(m)#
+}#
+#
+for(b in 1:B){#
+	for(i in 1:warm){#
+		if(i == 1){m<- sample(1:n, 1)}#
+		else{m<- m_posterior(theta1, theta2)}#
+		s1<- sum(y[1:m])#
+		s2<- sum(y)-s1#
+		theta1<- rgamma(1, a1+s1, m+b1)#
+		theta2<- rgamma(1, a2+s2, n-m+b2)#
+	}#
+	M[b]<- m#
+	Theta1[b]<- theta1#
+	Theta2[b]<- theta2#
+}#
+hist(M, 22)#
+#
+quantile(Theta1, c(0.1, 0.9))#
+quantile(Theta2, c(0.1, 0.9))
+n
+y<- c(4,7,10,6,7,16,11,12,15,4,8,6,6,17,9,8,10,11,6,10,11,6)#
+year<- seq(1989, 2010, 1)#
+n<- length(y)#
+#
+# prior#
+a1<- 0.5#
+a2<- 0.5#
+b1<- 0.01#
+b2<- 0.01#
+#
+par(mfrow=c(3,1))#
+plot(year, y, "l", xlab="year", ylab="count")#
+#
+log_gamma<- function(n){#
+	if(!(n%%1)){#
+		output<- 0#
+		for(i in 1:(n-1)){#
+			output<- output+log(i)#
+		}#
+		return(output)#
+	}#
+	else{#
+		n<- n-0.5#
+		output<- 0#
+		for(i in 1:n){#
+			output<- output+log(i)#
+		}#
+		output<- output+0.5*log(pi)+log(choose(n-0.5, n))#
+		return(output)	#
+	}#
+}#
+#
+log_q<- vector("numeric", n)#
+q<- vector("numeric", n)#
+for(m in 1:n){#
+	s1<- sum(y[1:m])#
+	s2<- sum(y)-s1#
+	log_q[m]<- log_gamma(s1+a1)-(s1+a1)*log(m+b1)+log_gamma(s2+a2)-(s2+a2)*log(n-m+b2)#
+	q[m]<- exp(log_q[m])#
+}#
+q<- q/sum(q)#
+barplot(q, names=1989:2010)
+B<- 5000#
+warm<- 500#
+M<- vector("numeric", B)#
+Theta1<- vector("numeric", B)#
+Theta2<<- vector("numeric", B)#
+#
+m_posterior<- function(theta1, theta2){#
+	m_prob<- vector("numeric", n)#
+	for(m in 1:n){#
+		s1<- sum(y[1:m])#
+		s2<- sum(y)-s1#
+		m_prob[m]<- (theta1/theta2)^s1*exp(m*(theta2-theta1))#
+	}#
+	m_prob<- m_prob/sum(m_prob)#
+	m_cum<- cumsum(m_prob)#
+	r<- runif(1)#
+	m<- min(which(m_cum > r))#
+	return(m)#
+}
+for(b in 1:B){#
+	for(i in 1:warm){#
+		if(i == 1){m<- sample(1:n, 1)}#
+		else{m<- m_posterior(theta1, theta2)}#
+		s1<- sum(y[1:m])#
+		s2<- sum(y)-s1#
+		theta1<- rgamma(1, a1+s1, m+b1)#
+		theta2<- rgamma(1, a2+s2, n-m+b2)#
+	}#
+	M[b]<- m#
+	Theta1[b]<- theta1#
+	Theta2[b]<- theta2#
+}#
+hist(M, 22)#
+#
+quantile(Theta1, c(0.1, 0.9))#
+quantile(Theta2, c(0.1, 0.9))
+m
+m_posterior(0.1,0.1)
+m_posterior(0.1,0.9)
+Bayesian analysis#
+y<- c(4,7,10,6,7,16,11,12,15,4,8,6,6,17,9,8,10,11,6,10,11,6)#
+year<- seq(1989, 2010, 1)#
+n<- length(y)#
+#
+# prior#
+a1<- 0.5#
+a2<- 0.5#
+b1<- 0.01#
+b2<- 0.01#
+#
+par(mfrow=c(3,1))#
+plot(year, y, "l", xlab="year", ylab="count")#
+#
+log_gamma<- function(n){#
+	if(!(n%%1)){#
+		output<- 0#
+		for(i in 1:(n-1)){#
+			output<- output+log(i)#
+		}#
+		return(output)#
+	}#
+	else{#
+		n<- n-0.5#
+		output<- 0#
+		for(i in 1:n){#
+			output<- output+log(i)#
+		}#
+		output<- output+0.5*log(pi)+log(choose(n-0.5, n))#
+		return(output)	#
+	}#
+}#
+#
+log_q<- vector("numeric", n)#
+q<- vector("numeric", n)#
+for(m in 1:n){#
+	s1<- sum(y[1:m])#
+	s2<- sum(y)-s1#
+	log_q[m]<- log_gamma(s1+a1)-(s1+a1)*log(m+b1)+log_gamma(s2+a2)-(s2+a2)*log(n-m+b2)#
+	q[m]<- exp(log_q[m])#
+}#
+q<- q/sum(q)#
+barplot(q, names=1989:2010)#
+#
+B<- 5000#
+warm<- 500#
+M<- vector("numeric", B)#
+Theta1<- vector("numeric", B)#
+Theta2<<- vector("numeric", B)
+n
+m_posterior<- function(theta1, theta2){#
+	m_prob<- vector("numeric", n)#
+	for(m in 1:n){#
+		s1<- sum(y[1:m])#
+		s2<- sum(y)-s1#
+		m_prob[m]<- (theta1/theta2)^s1*exp(m*(theta2-theta1))#
+	}#
+	m_prob<- m_prob/sum(m_prob)#
+	m_cum<- cumsum(m_prob)#
+	r<- runif(1)#
+	m<- min(which(m_cum > r))#
+	return(m)#
+}
+for(b in 1:B){#
+	for(i in 1:warm){#
+		if(i == 1){m<- sample(1:n, 1)}#
+		else{m<- m_posterior(theta1, theta2)}#
+		s1<- sum(y[1:m])#
+		s2<- sum(y)-s1#
+		theta1<- rgamma(1, a1+s1, m+b1)#
+		theta2<- rgamma(1, a2+s2, n-m+b2)#
+	}#
+	M[b]<- m#
+	Theta1[b]<- theta1#
+	Theta2[b]<- theta2#
+}#
+hist(M, 22)
+B<- 5000#
+warm<- 500#
+M<- vector("numeric", B)#
+Theta1<- vector("numeric", B)#
+Theta2<<- vector("numeric", B)#
+#
+m_posterior<- function(theta1, theta2){#
+	m_prob<- vector("numeric", n)#
+	for(m in 1:n){#
+		s1<- sum(y[1:m])#
+		s2<- sum(y)-s1#
+		m_prob[m]<- (theta1/theta2)^s1*exp(m*(theta2-theta1))#
+	}#
+	m_prob<- m_prob/sum(m_prob)#
+	m_cum<- cumsum(m_prob)#
+	r<- runif(1)#
+	m<- min(which(m_cum >= r))#
+	return(m)#
+}#
+#
+for(b in 1:B){#
+	for(i in 1:warm){#
+		if(i == 1){m<- sample(1:n, 1)}#
+		else{m<- m_posterior(theta1, theta2)}#
+		s1<- sum(y[1:m])#
+		s2<- sum(y)-s1#
+		theta1<- rgamma(1, a1+s1, m+b1)#
+		theta2<- rgamma(1, a2+s2, n-m+b2)#
+	}#
+	M[b]<- m#
+	Theta1[b]<- theta1#
+	Theta2[b]<- theta2#
+}#
+hist(M, 22)#
+#
+quantile(Theta1, c(0.1, 0.9))#
+quantile(Theta2, c(0.1, 0.9))
+m_cum
+B<- 5000#
+warm<- 500#
+M<- vector("numeric", B)#
+Theta1<- vector("numeric", B)#
+Theta2<<- vector("numeric", B)#
+#
+m_posterior<- function(theta1, theta2){#
+	m_prob<- vector("numeric", n)#
+	for(m in 1:n){#
+		s1<- sum(y[1:m])#
+		s2<- sum(y)-s1#
+		m_prob[m]<- (theta1/theta2)^s1*exp(m*(theta2-theta1))#
+	}#
+	m_prob<- m_prob/sum(m_prob)#
+	m_cum<- cumsum(m_prob)#
+	r<- runif(1)#
+	m<- min(which(m_cum >= r))#
+	return(m_cum)#
+}
+m
+m_cum
+B<- 5000#
+warm<- 500#
+M<- vector("numeric", B)#
+Theta1<- vector("numeric", B)#
+Theta2<<- vector("numeric", B)#
+#
+m_posterior<- function(theta1, theta2){#
+	m_prob<- vector("numeric", n)#
+	for(m in 1:n){#
+		s1<- sum(y[1:m])#
+		s2<- sum(y)-s1#
+		m_prob[m]<- (theta1/theta2)^s1*exp(m*(theta2-theta1))#
+	}#
+	m_prob<- m_prob/sum(m_prob)#
+	m_cum<- cumsum(m_prob)#
+	r<- runif(1)#
+	m<- min(which(m_cum >= r))#
+	return(m_cum)#
+}
+for(b in 1:B){#
+	for(i in 1:warm){#
+		if(i == 1){m<- sample(1:n, 1)}#
+		else{m<- m_posterior(theta1, theta2)}#
+		s1<- sum(y[1:m])#
+		s2<- sum(y)-s1#
+		theta1<- rgamma(1, a1+s1, m+b1)#
+		theta2<- rgamma(1, a2+s2, n-m+b2)#
+	}#
+	M[b]<- m#
+	Theta1[b]<- theta1#
+	Theta2[b]<- theta2#
+}#
+hist(M, 22)
+warnings()
+M
+Theta1
+sample(1:n,1)
+1~=1
+1!=1
+B<- 5000#
+warm<- 500#
+M<- vector("numeric", B)#
+Theta1<- vector("numeric", B)#
+Theta2<<- vector("numeric", B)#
+#
+m_posterior<- function(theta1, theta2){#
+	m_prob<- vector("numeric", n)#
+	for(m in 1:n){#
+		s1<- sum(y[1:m])#
+		s2<- sum(y)-s1#
+		m_prob[m]<- (theta1/theta2)^s1*exp(m*(theta2-theta1))#
+	}#
+	m_prob<- m_prob/sum(m_prob)#
+	m_cum<- cumsum(m_prob)#
+	r<- runif(1)#
+	m<- min(which(m_cum >= r))#
+	return(m)#
+}#
+#
+for(b in 1:B){#
+	for(i in 1:warm){#
+		if(i == 1){m<- sample(1:n, 1)}#
+		if(i != 1){m<- m_posterior(theta1, theta2)}#
+		s1<- sum(y[1:m])#
+		s2<- sum(y)-s1#
+		theta1<- rgamma(1, a1+s1, m+b1)#
+		theta2<- rgamma(1, a2+s2, n-m+b2)#
+	}#
+	M[b]<- m#
+	Theta1[b]<- theta1#
+	Theta2[b]<- theta2#
+}#
+hist(M, 22)
+1:500
+1:5000
+y
+B<- 1000#
+warm<- 200#
+M<- vector("numeric", B)#
+Theta1<- vector("numeric", B)#
+Theta2<<- vector("numeric", B)#
+#
+m_posterior<- function(theta1, theta2){#
+	m_prob<- vector("numeric", n)#
+	for(m in 1:n){#
+		s1<- sum(y[1:m])#
+		s2<- sum(y)-s1#
+		m_prob[m]<- (theta1/theta2)^s1*exp(m*(theta2-theta1))#
+	}#
+	m_prob<- m_prob/sum(m_prob)#
+	m_cum<- cumsum(m_prob)#
+	r<- runif(1)#
+	m<- min(which(m_cum >= r))#
+	return(m)#
+}#
+#
+for(b in 1:B){#
+	for(i in 1:warm){#
+		if(i == 1){m<- sample(1:n, 1)}#
+		if(i != 1){m<- m_posterior(theta1, theta2)}#
+		s1<- sum(y[1:m])#
+		s2<- sum(y)-s1#
+		theta1<- rgamma(1, a1+s1, m+b1)#
+		theta2<- rgamma(1, a2+s2, n-m+b2)#
+	}#
+	M[b]<- m#
+	Theta1[b]<- theta1#
+	Theta2[b]<- theta2#
+}
+y<- c(4,7,10,6,7,16,11,12,15,4,8,6,6,17,9,8,10,11,6,10,11,6)#
+year<- seq(1989, 2010, 1)#
+n<- length(y)#
+#
+# prior#
+a1<- 0.5#
+a2<- 0.5#
+b1<- 0.01#
+b2<- 0.01#
+#
+par(mfrow=c(3,1))#
+plot(year, y, "l", xlab="year", ylab="count")#
+#
+log_gamma<- function(n){#
+	if(!(n%%1)){#
+		output<- 0#
+		for(i in 1:(n-1)){#
+			output<- output+log(i)#
+		}#
+		return(output)#
+	}#
+	else{#
+		n<- n-0.5#
+		output<- 0#
+		for(i in 1:n){#
+			output<- output+log(i)#
+		}#
+		output<- output+0.5*log(pi)+log(choose(n-0.5, n))#
+		return(output)	#
+	}#
+}#
+#
+log_q<- vector("numeric", n)#
+q<- vector("numeric", n)#
+for(m in 1:n){#
+	s1<- sum(y[1:m])#
+	s2<- sum(y)-s1#
+	log_q[m]<- log_gamma(s1+a1)-(s1+a1)*log(m+b1)+log_gamma(s2+a2)-(s2+a2)*log(n-m+b2)#
+	q[m]<- exp(log_q[m])#
+}#
+q<- q/sum(q)#
+barplot(q, names=1989:2010)#
+#
+B<- 1000#
+warm<- 200#
+M<- vector("numeric", B)#
+Theta1<- vector("numeric", B)#
+Theta2<<- vector("numeric", B)#
+#
+m_posterior<- function(theta1, theta2){#
+	m_prob<- vector("numeric", n)#
+	for(m in 1:n){#
+		s1<- sum(y[1:m])#
+		s2<- sum(y)-s1#
+		m_prob[m]<- (theta1/theta2)^s1*exp(m*(theta2-theta1))#
+	}#
+	m_prob<- m_prob/sum(m_prob)#
+	m_cum<- cumsum(m_prob)#
+	r<- runif(1)#
+	m<- min(which(m_cum >= r))#
+	return(m)#
+}#
+#
+for(b in 1:B){#
+	for(i in 1:warm){#
+		if(i == 1){m<- sample(1:n, 1)}#
+		if(i != 1){m<- m_posterior(theta1, theta2)}#
+		s1<- sum(y[1:m])#
+		s2<- sum(y)-s1#
+		theta1<- rgamma(1, a1+s1, m+b1)#
+		theta2<- rgamma(1, a2+s2, n-m+b2)#
+	}#
+	M[b]<- m#
+	Theta1[b]<- theta1#
+	Theta2[b]<- theta2#
+}#
+hist(M, 22)
+m_posterior<- function(theta1, theta2){#
+	m_prob<- vector("numeric", n)#
+	for(m in 1:n){#
+		s1<- sum(y[1:m])#
+		s2<- sum(y)-s1#
+		m_prob[m]<- (theta1/theta2)^s1*exp(m*(theta2-theta1))#
+	}#
+	m_prob<- m_prob/sum(m_prob)#
+	m_cum<- cumsum(m_prob)#
+	r<- runif(1)#
+	m<- min(which(m_cum >= r))#
+	return(m_cum)#
+}
+m
+m_posterior(1,1)
+m_posterior(1,1)>=0
+m_posterior(1,1)>=1
+B<- 1000#
+warm<- 200#
+M<- vector("numeric", B)#
+Theta1<- vector("numeric", B)#
+Theta2<<- vector("numeric", B)#
+#
+m_posterior<- function(theta1, theta2){#
+	m_prob<- vector("numeric", n)#
+	for(m in 1:n){#
+		s1<- sum(y[1:m])#
+		s2<- sum(y)-s1#
+		m_prob[m]<- (theta1/theta2)^s1*exp(m*(theta2-theta1))#
+	}#
+	m_prob<- m_prob/sum(m_prob)#
+	m_cum<- cumsum(m_prob)#
+	r<- runif(1)#
+	m<- min(which(m_cum >= r))#
+	return(m)#
+}#
+#
+for(b in 1:B){#
+	for(i in 1:warm){#
+		if(i == 1){m<- sample(1:n, 1)}#
+		if(i != 1){m<- m_posterior(theta1, theta2)}#
+		s1<- sum(y[1:m])#
+		s2<- sum(y)-s1#
+		theta1<- rgamma(1, a1+s1, m+b1)#
+		theta2<- rgamma(1, a2+s2, n-m+b2)#
+	}#
+	M[b]<- m#
+	Theta1[b]<- theta1#
+	Theta2[b]<- theta2#
+}
+runif(1)
+m_posterior(1,3)
+y<- c(4,7,10,6,7,16,11,12,15,4,8,6,6,17,9,8,10,11,6,10,11,6)#
+year<- seq(1989, 2010, 1)#
+n<- length(y)#
+#
+# prior#
+a1<- 0.5#
+a2<- 0.5#
+b1<- 0.01#
+b2<- 0.01#
+#
+par(mfrow=c(3,1))#
+plot(year, y, "l", xlab="year", ylab="count")#
+#
+log_gamma<- function(n){#
+	if(!(n%%1)){#
+		output<- 0#
+		for(i in 1:(n-1)){#
+			output<- output+log(i)#
+		}#
+		return(output)#
+	}#
+	else{#
+		n<- n-0.5#
+		output<- 0#
+		for(i in 1:n){#
+			output<- output+log(i)#
+		}#
+		output<- output+0.5*log(pi)+log(choose(n-0.5, n))#
+		return(output)	#
+	}#
+}#
+#
+log_q<- vector("numeric", n)#
+q<- vector("numeric", n)#
+for(m in 1:n){#
+	s1<- sum(y[1:m])#
+	s2<- sum(y)-s1#
+	log_q[m]<- log_gamma(s1+a1)-(s1+a1)*log(m+b1)+log_gamma(s2+a2)-(s2+a2)*log(n-m+b2)#
+	q[m]<- exp(log_q[m])#
+}#
+q<- q/sum(q)#
+barplot(q, names=1989:2010)#
+#
+B<- 1000#
+warm<- 200#
+M<- vector("numeric", B)#
+Theta1<- vector("numeric", B)#
+Theta2<<- vector("numeric", B)#
+#
+m_posterior<- function(theta1, theta2){#
+	m_prob<- vector("numeric", n)#
+	for(m in 1:n){#
+		s1<- sum(y[1:m])#
+		s2<- sum(y)-s1#
+		m_prob[m]<- (theta1/theta2)^s1*exp(m*(theta2-theta1))#
+	}#
+	m_prob<- m_prob/sum(m_prob)#
+	m_cum<- cumsum(m_prob)#
+	r<- runif(1)#
+	m<- min(which(m_cum >= r))#
+	return(m)#
+}#
+#
+for(b in 1:B){#
+	for(i in 1:warm){#
+		if(i == 1){m<- sample(1:n, 1)}#
+		if(i != 1){m<- m_posterior(theta1, theta2)}#
+		s1<- sum(y[1:m])#
+		s2<- sum(y)-s1#
+		theta1<- rgamma(1, a1+s1, m+b1)#
+		theta2<- rgamma(1, a2+s2, n-m+b2)#
+	}#
+	M[b]<- m#
+	Theta1[b]<- theta1#
+	Theta2[b]<- theta2#
+}
+for(i in 1:warm){#
+		if(i == 1){m<- sample(1:n, 1)}#
+		if(i != 1){m<- m_posterior(theta1, theta2)}#
+		s1<- sum(y[1:m])#
+		s2<- sum(y)-s1#
+		theta1<- rgamma(1, a1+s1, m+b1)#
+		theta2<- rgamma(1, a2+s2, n-m+b2)#
+	}
+m
+for(b in 1:B){#
+	m<- 0#
+	for(i in 1:warm){#
+		if(i == 1){m<- sample(1:n, 1)}#
+		if(i != 1){m<- m_posterior(theta1, theta2)}#
+		s1<- sum(y[1:m])#
+		s2<- sum(y)-s1#
+		theta1<- rgamma(1, a1+s1, m+b1)#
+		theta2<- rgamma(1, a2+s2, n-m+b2)#
+	}#
+	M[b]<- m#
+	Theta1[b]<- theta1#
+	Theta2[b]<- theta2#
+}
+m_cum
+y<- c(4,7,10,6,7,16,11,12,15,4,8,6,6,17,9,8,10,11,6,10,11,6)#
+year<- seq(1989, 2010, 1)#
+n<- length(y)#
+#
+# prior#
+a1<- 0.5#
+a2<- 0.5#
+b1<- 0.01#
+b2<- 0.01#
+#
+par(mfrow=c(3,1))#
+plot(year, y, "l", xlab="year", ylab="count")#
+#
+log_gamma<- function(n){#
+	if(!(n%%1)){#
+		output<- 0#
+		for(i in 1:(n-1)){#
+			output<- output+log(i)#
+		}#
+		return(output)#
+	}#
+	else{#
+		n<- n-0.5#
+		output<- 0#
+		for(i in 1:n){#
+			output<- output+log(i)#
+		}#
+		output<- output+0.5*log(pi)+log(choose(n-0.5, n))#
+		return(output)	#
+	}#
+}#
+#
+log_q<- vector("numeric", n)#
+q<- vector("numeric", n)#
+for(m in 1:n){#
+	s1<- sum(y[1:m])#
+	s2<- sum(y)-s1#
+	log_q[m]<- log_gamma(s1+a1)-(s1+a1)*log(m+b1)+log_gamma(s2+a2)-(s2+a2)*log(n-m+b2)#
+	q[m]<- exp(log_q[m])#
+}#
+q<- q/sum(q)#
+barplot(q, names=1989:2010)#
+#
+B<- 1000#
+warm<- 200#
+M<- vector("numeric", B)#
+Theta1<- vector("numeric", B)#
+Theta2<<- vector("numeric", B)#
+#
+m_posterior<- function(theta1, theta2){#
+	m_prob<- vector("numeric", n)#
+	for(m in 1:n){#
+		s1<- sum(y[1:m])#
+		s2<- sum(y)-s1#
+		m_prob[m]<- (theta1/theta2)^s1*exp(m*(theta2-theta1))#
+	}#
+	m_prob<- m_prob/sum(m_prob)#
+	m_cum<- cumsum(m_prob)#
+	r<- runif(1)#
+	output<- min(which(m_cum >= r))#
+	return(output)#
+}#
+#
+for(b in 1:B){#
+	for(i in 1:warm){#
+		if(i == 1){m<- sample(1:n, 1)}#
+		if(i != 1){m<- m_posterior(theta1, theta2)}#
+		s1<- sum(y[1:m])#
+		s2<- sum(y)-s1#
+		theta1<- rgamma(1, a1+s1, m+b1)#
+		theta2<- rgamma(1, a2+s2, n-m+b2)#
+	}#
+	M[b]<- m#
+	Theta1[b]<- theta1#
+	Theta2[b]<- theta2#
+}
+m_cum
+m_posterior<- function(theta1, theta2){#
+	m_prob<- vector("numeric", n)#
+	for(m in 1:n){#
+		s1<- sum(y[1:m])#
+		s2<- sum(y)-s1#
+		m_prob[m]<- (theta1/theta2)^s1*exp(m*(theta2-theta1))#
+	}#
+	m_prob<- m_prob/sum(m_prob)#
+	m_cum<- cumsum(m_prob)#
+	r<- runif(1)#
+	output<- min(which(m_cum >= r))#
+	return(m_cum)#
+}
+m_posterior(0.1,0.3)
+m_posterior(0.1,0.6)
+m_posterior(0.3,0.6)
+m_posterior(0.5,0.6)
+m_posterior(0.5,0.6)>= runif(1)
+which(m_posterior(0.5,0.6)>= runif(1))
+min(which(m_posterior(0.5,0.6)>= runif(1)))
+min(which(m_posterior(0.5,0.6)>= 0.8))
+m_posterior<- function(theta1, theta2){#
+	m_prob<- vector("numeric", n)#
+	for(m in 1:n){#
+		s1<- sum(y[1:m])#
+		s2<- sum(y)-s1#
+		m_prob[m]<- (theta1/theta2)^s1*exp(m*(theta2-theta1))#
+	}#
+	m_prob<- m_prob/sum(m_prob)#
+	m_cum<- cumsum(m_prob)#
+	r<- runif(1)#
+	output<- min(which(m_cum >= r))#
+	return(output)#
+}#
+#
+for(b in 1:B){#
+	for(i in 1:warm){#
+		if(i == 1){m<- sample(1:n, 1)}#
+		if(i != 1){m<- m_posterior(theta1, theta2)}#
+		s1<- sum(y[1:m])#
+		s2<- sum(y)-s1#
+		theta1<- rgamma(1, a1+s1, m+b1)#
+		theta2<- rgamma(1, a2+s2, n-m+b2)#
+	}#
+	M[b]<- m#
+	Theta1[b]<- theta1#
+	Theta2[b]<- theta2#
+}
+warning()
+B<- 1000#
+warm<- 200#
+M<- vector("numeric", B)#
+Theta1<- vector("numeric", B)#
+Theta2<<- vector("numeric", B)#
+#
+m_posterior<- function(theta1, theta2){#
+	m_prob<- vector("numeric", n)#
+	for(m in 1:n){#
+		s1<- sum(y[1:m])#
+		s2<- sum(y)-s1#
+		m_prob[m]<- (theta1/theta2)^s1*exp(m*(theta2-theta1))#
+	}#
+	m_prob<- m_prob/sum(m_prob)#
+	m_cum<- cumsum(m_prob)#
+	r<- runif(1)#
+	output<- min(which(m_cum > r))#
+	return(output)#
+}#
+#
+for(b in 1:B){#
+	for(i in 1:warm){#
+		if(i == 1){m<- sample(1:n, 1)}#
+		if(i != 1){m<- m_posterior(theta1, theta2)}#
+		s1<- sum(y[1:m])#
+		s2<- sum(y)-s1#
+		theta1<- rgamma(1, a1+s1, m+b1)#
+		theta2<- rgamma(1, a2+s2, n-m+b2)#
+	}#
+	M[b]<- m#
+	Theta1[b]<- theta1#
+	Theta2[b]<- theta2#
+}
+a1<- 0.5#
+a2<- 0.5#
+b1<- 0.01#
+b2<- 0.01#
+#
+par(mfrow=c(3,1))#
+plot(year, y, "l", xlab="year", ylab="count")#
+#
+log_gamma<- function(n){#
+	if(!(n%%1)){#
+		output<- 0#
+		for(i in 1:(n-1)){#
+			output<- output+log(i)#
+		}#
+		return(output)#
+	}#
+	else{#
+		n<- n-0.5#
+		output<- 0#
+		for(i in 1:n){#
+			output<- output+log(i)#
+		}#
+		output<- output+0.5*log(pi)+log(choose(n-0.5, n))#
+		return(output)	#
+	}#
+}#
+#
+log_q<- vector("numeric", n)#
+q<- vector("numeric", n)#
+for(m in 1:n){#
+	s1<- sum(y[1:m])#
+	s2<- sum(y)-s1#
+	log_q[m]<- log_gamma(s1+a1)-(s1+a1)*log(m+b1)+log_gamma(s2+a2)-(s2+a2)*log(n-m+b2)#
+	q[m]<- exp(log_q[m])#
+}#
+q<- q/sum(q)#
+barplot(q, names=1989:2010)#
+#
+B<- 1000#
+warm<- 200#
+M<- vector("numeric", B)#
+Theta1<- vector("numeric", B)#
+Theta2<<- vector("numeric", B)#
+#
+m_posterior<- function(theta1, theta2){#
+	m_prob<- vector("numeric", n)#
+	for(m in 1:n){#
+		s1<- sum(y[1:m])#
+		s2<- sum(y)-s1#
+		m_prob[m]<- (theta1/theta2)^s1*exp(m*(theta2-theta1))#
+	}#
+	m_prob<- m_prob/sum(m_prob)#
+	m_cum<- cumsum(m_prob)#
+	r<- runif(1)#
+	output<- min(which(m_cum >= r))#
+	return(output)#
+}#
+#
+for(b in 1:B){#
+	for(i in 1:warm){#
+		if(i == 1){m<- sample(1:n, 1)}#
+		if(i != 1){m<- m_posterior(theta1, theta2)}#
+		s1<- sum(y[1:m])#
+		s2<- sum(y)-s1#
+		theta1<- rgamma(1, a1+s1, m+b1)#
+		theta2<- rgamma(1, a2+s2, n-m+b2)#
+	}#
+	M[b]<- m#
+	Theta1[b]<- theta1#
+	Theta2[b]<- theta2#
+}
+y<- c(4,7,10,6,7,16,11,12,15,4,8,6,6,17,9,8,10,11,6,10,11,6)#
+year<- seq(1989, 2010, 1)#
+n<- length(y)#
+#
+# prior#
+a1<- 0.5#
+a2<- 0.5#
+b1<- 0.01#
+b2<- 0.01#
+#
+par(mfrow=c(3,1))#
+plot(year, y, "l", xlab="year", ylab="count")#
+#
+log_gamma<- function(n){#
+	if(!(n%%1)){#
+		output<- 0#
+		for(i in 1:(n-1)){#
+			output<- output+log(i)#
+		}#
+		return(output)#
+	}#
+	else{#
+		n<- n-0.5#
+		output<- 0#
+		for(i in 1:n){#
+			output<- output+log(i)#
+		}#
+		output<- output+0.5*log(pi)+log(choose(n-0.5, n))#
+		return(output)	#
+	}#
+}#
+#
+log_q<- vector("numeric", n)#
+q<- vector("numeric", n)#
+for(m in 1:n){#
+	s1<- sum(y[1:m])#
+	s2<- sum(y)-s1#
+	log_q[m]<- log_gamma(s1+a1)-(s1+a1)*log(m+b1)+log_gamma(s2+a2)-(s2+a2)*log(n-m+b2)#
+	q[m]<- exp(log_q[m])#
+}#
+q<- q/sum(q)#
+barplot(q, names=1989:2010)#
+#
+B<- 1000#
+warm<- 200#
+M<- vector("numeric", B)#
+Theta1<- vector("numeric", B)#
+Theta2<<- vector("numeric", B)#
+#
+m_posterior<- function(theta1, theta2){#
+	m_prob<- vector("numeric", n)#
+	for(m in 1:n){#
+		s1<- sum(y[1:m])#
+		s2<- sum(y)-s1#
+		m_prob[m]<- (theta1/theta2)^s1*exp(m*(theta2-theta1))#
+	}#
+	m_prob<- m_prob/sum(m_prob)#
+	m_cum<- cumsum(m_prob)#
+	r<- runif(1)#
+	output<- min(which(m_cum >= r))#
+	return(output)#
+}#
+#
+for(b in 1:B){#
+	for(i in 1:warm){#
+		if(i == 1){m<- sample(1:n, 1)}#
+		if(i != 1){m<- m_posterior(theta1, theta2)}#
+		s1<- sum(y[1:m])#
+		s2<- sum(y)-s1#
+		theta1<- rgamma(1, a1+s1, m+b1)#
+		theta2<- rgamma(1, a2+s2, n-m+b2)#
+	}#
+	M[b]<- m#
+	Theta1[b]<- theta1#
+	Theta2[b]<- theta2#
+}
+B<- 1000#
+warm<- 200#
+M<- vector("numeric", B)#
+Theta1<- vector("numeric", B)#
+Theta2<<- vector("numeric", B)#
+#
+m_posterior<- function(theta1, theta2){#
+	m_prob<- vector("numeric", n)#
+	for(m in 1:n){#
+		s1<- sum(y[1:m])#
+		m_prob[m]<- (theta1/theta2)^s1*exp(m*(theta2-theta1))#
+	}#
+	m_prob<- m_prob/sum(m_prob)#
+	m_cum<- cumsum(m_prob)#
+	r<- runif(1)#
+	output<- min(which(m_cum >= r))#
+	return(output)#
+}#
+#
+for(b in 1:B){#
+	for(i in 1:warm){#
+		if(i == 1){m<- sample(1:n, 1)}#
+		if(i != 1){m<- m_posterior(theta1, theta2)}#
+		s1<- sum(y[1:m])#
+		s2<- sum(y)-s1#
+		theta1<- rgamma(1, a1+s1, m+b1)#
+		theta2<- rgamma(1, a2+s2, n-m+b2)#
+	}#
+	M[b]<- m#
+	Theta1[b]<- theta1#
+	Theta2[b]<- theta2#
+}
+m
+theta_1
+theta1
+theta2
+m_posterior(theta1, theta2)
+for(m in 1:n){#
+		s1<- sum(y[1:m])#
+		m_prob[m]<- (theta1/theta2)^s1*exp(m*(theta2-theta1))#
+	}
+m_prob<- vector("numeric", n)#
+	for(m in 1:n){#
+		s1<- sum(y[1:m])#
+		m_prob[m]<- (theta1/theta2)^s1*exp(m*(theta2-theta1))#
+	}
+m_prob
+m_prob<- m_prob/sum(m_prob)
+m_prob
+a1
+a2
+b1
+b2
+theta1<-0
+theta2<-0
+B<- 1000#
+warm<- 200#
+M<- vector("numeric", B)#
+Theta1<- vector("numeric", B)#
+Theta2<<- vector("numeric", B)#
+#
+m_posterior<- function(theta1, theta2){#
+	m_prob<- vector("numeric", n)#
+	for(m in 1:n){#
+		s1<- sum(y[1:m])#
+		m_prob[m]<- (theta1/theta2)^s1*exp(m*(theta2-theta1))#
+	}#
+	m_prob<- m_prob/sum(m_prob)#
+	m_cum<- cumsum(m_prob)#
+	r<- runif(1)#
+	output<- min(which(m_cum >= r))#
+	return(output)#
+}#
+#
+for(b in 1:B){#
+	for(i in 1:warm){#
+		if(i == 1){m<- sample(1:n, 1)}#
+		if(i != 1){m<- m_posterior(theta1, theta2)}#
+		s1<- sum(y[1:m])#
+		s2<- sum(y)-s1#
+		theta1<- rgamma(1, a1+s1, m+b1)#
+		theta2<- rgamma(1, a2+s2, n-m+b2)#
+	}#
+	M[b]<- m#
+	Theta1[b]<- theta1#
+	Theta2[b]<- theta2#
+}
+m
+theta1<- rgamma(1, a1+s1, m+b1)
+theta1
+theta2<- rgamma(1, a2+s2, n-m+b2)
+theta2
+B<- 1000#
+warm<- 200#
+M<- vector("numeric", B)#
+Theta1<- vector("numeric", B)#
+Theta2<<- vector("numeric", B)#
+#
+m_posterior<- function(theta1, theta2){#
+	m_prob<- vector("numeric", n)#
+	for(m in 1:n){#
+		s1<- sum(y[1:m])#
+		m_prob[m]<- (theta1/theta2)^s1*exp(m*(theta2-theta1))#
+	}#
+	m_prob<- m_prob/sum(m_prob)#
+	# m_cum<- cumsum(m_prob)#
+	# r<- runif(1)#
+	# output<- min(which(m_cum >= r))#
+	output<- sample(1:n, 1, prob = m_prob)#
+	return(output)#
+}#
+#
+for(b in 1:B){#
+	for(i in 1:warm){#
+		if(i == 1){m<- sample(1:n, 1)}#
+		if(i != 1){m<- m_posterior(theta1, theta2)}#
+		s1<- sum(y[1:m])#
+		s2<- sum(y)-s1#
+		theta1<- rgamma(1, a1+s1, m+b1)#
+		theta2<- rgamma(1, a2+s2, n-m+b2)#
+	}#
+	M[b]<- m#
+	Theta1[b]<- theta1#
+	Theta2[b]<- theta2#
+}
+prob
+B<- 1000#
+warm<- 200#
+M<- vector("numeric", B)#
+Theta1<- vector("numeric", B)#
+Theta2<<- vector("numeric", B)#
+#
+m_posterior<- function(theta1, theta2){#
+	m_prob<- vector("numeric", n)#
+	for(m in 1:n){#
+		s1<- sum(y[1:m])#
+		m_prob[m]<- (theta1/theta2)^s1*exp(m*(theta2-theta1))#
+	}#
+	m_prob<- m_prob/sum(m_prob)#
+	# m_cum<- cumsum(m_prob)#
+	# r<- runif(1)#
+	# output<- min(which(m_cum >= r))#
+	output<- sample(1:n, 1, prob = m_prob)#
+	return(output)#
+}#
+#
+for(b in 1:B){#
+	for(i in 1:warm){#
+		if(i == 1){m<- sample(1:n, 1)}#
+		if(i != 1){m<- m_posterior(theta1, theta2)}#
+		s1<- sum(y[1:m])#
+		s2<- sum(y)-s1#
+		theta1<- rgamma(1, a1+s1, scale=m+b1)#
+		theta2<- rgamma(1, a2+s2, scale=n-m+b2)#
+	}#
+	M[b]<- m#
+	Theta1[b]<- theta1#
+	Theta2[b]<- theta2#
+}#
+hist(M, 22)#
+#
+quantile(Theta1, c(0.1, 0.9))#
+quantile(Theta2, c(0.1, 0.9))
+B<- 1000#
+warm<- 200#
+M<- vector("numeric", B)#
+Theta1<- vector("numeric", B)#
+Theta2<<- vector("numeric", B)#
+#
+m_posterior<- function(theta1, theta2){#
+	m_prob<- vector("numeric", n)#
+	for(m in 1:n){#
+		s1<- sum(y[1:m])#
+		m_prob[m]<- (theta1/theta2)^s1*exp(m*(theta2-theta1))#
+	}#
+	m_prob<- m_prob/sum(m_prob)#
+	# m_cum<- cumsum(m_prob)#
+	# r<- runif(1)#
+	# output<- min(which(m_cum >= r))#
+	output<- sample(1:n, 1, prob = m_prob)#
+	return(output)#
+}#
+#
+for(b in 1:B){#
+	for(i in 1:warm){#
+		if(i == 1){m<- sample(1:n, 1)}#
+		if(i != 1){m<- m_posterior(theta1, theta2)}#
+		s1<- sum(y[1:m])#
+		s2<- sum(y)-s1#
+		theta1<- rgamma(1, a1+s1, m+b1)#
+		theta2<- rgamma(1, a2+s2, n-m+b2)#
+	}#
+	M[b]<- m#
+	Theta1[b]<- theta1#
+	Theta2[b]<- theta2#
+}
+B<- 1000#
+warm<- 200#
+M<- vector("numeric", B)#
+Theta1<- vector("numeric", B)#
+Theta2<<- vector("numeric", B)#
+#
+m_posterior<- function(theta1, theta2){#
+	m_prob<- vector("numeric", n)#
+	for(j in 1:n){#
+		s1<- sum(y[1:j])#
+		m_prob[j]<- (theta1/theta2)^s1*exp(j*(theta2-theta1))#
+	}#
+	m_prob<- m_prob/sum(m_prob)#
+	# m_cum<- cumsum(m_prob)#
+	# r<- runif(1)#
+	# output<- min(which(m_cum >= r))#
+	output<- sample(1:n, 1, prob = m_prob)#
+	return(output)#
+}#
+#
+for(b in 1:B){#
+	for(i in 1:warm){#
+		if(i == 1){m<- sample(1:n, 1)}#
+		if(i != 1){m<- m_posterior(theta1, theta2)}#
+		s1<- sum(y[1:m])#
+		s2<- sum(y)-s1#
+		theta1<- rgamma(1, a1+s1, m+b1)#
+		theta2<- rgamma(1, a2+s2, n-m+b2)#
+	}#
+	M[b]<- m#
+	Theta1[b]<- theta1#
+	Theta2[b]<- theta2#
+}#
+hist(M, 22)
+for(b in 1:B){#
+	for(i in 1:warm){#
+		# if(i == 1){m<- sample(1:n, 1)}#
+		if(i == 1){m<- 14}#
+		if(i != 1){m<- m_posterior(theta1, theta2)}#
+		s1<- sum(y[1:m])#
+		s2<- sum(y)-s1#
+		theta1<- rgamma(1, a1+s1, m+b1)#
+		theta2<- rgamma(1, a2+s2, n-m+b2)#
+	}#
+	M[b]<- m#
+	Theta1[b]<- theta1#
+	Theta2[b]<- theta2#
+}
+m
+n
+B<- 1000#
+warm<- 200#
+M<- vector("numeric", B)#
+Theta1<- vector("numeric", B)#
+Theta2<<- vector("numeric", B)#
+#
+m_posterior<- function(theta1, theta2){#
+	m_prob<- vector("numeric", n)#
+	for(j in 1:n){#
+		s1<- sum(y[1:j])#
+		m_prob[j]<- (theta1/theta2)^s1*exp(j*(theta2-theta1))#
+	}#
+	m_prob<- m_prob/sum(m_prob)#
+	# m_cum<- cumsum(m_prob)#
+	# r<- runif(1)#
+	# output<- min(which(m_cum >= r))#
+	output<- sample(1:n, 1, prob = m_prob)#
+	return(output)#
+}#
+#
+for(b in 1:B){#
+	for(i in 1:warm){#
+		# if(i == 1){m<- sample(1:n, 1)}#
+		if(i == 1){m<- 14}#
+		if(i != 1){m<- m_posterior(theta1, theta2)}#
+		s1<- sum(y[1:m])#
+		s2<- sum(y)-s1#
+		theta1<- rgamma(1, a1+s1, m+b1)#
+		theta2<- rgamma(1, a2+s2, n-m+b2)#
+	}#
+	M[b]<- m#
+	Theta1[b]<- theta1#
+	Theta2[b]<- theta2#
+}#
+hist(M, 22)
+theta1
+theta2
+B<- 1000#
+warm<- 200#
+M<- vector("numeric", B)#
+Theta1<- vector("numeric", B)#
+Theta2<<- vector("numeric", B)#
+#
+m_posterior<- function(theta1, theta2){#
+	m_prob<- vector("numeric", n)#
+	for(j in 1:n){#
+		s1<- sum(y[1:j])#
+		m_prob[j]<- (theta1/theta2)^s1*exp(j*(theta2-theta1))#
+	}#
+	m_prob<- m_prob/sum(m_prob)#
+	# m_cum<- cumsum(m_prob)#
+	# r<- runif(1)#
+	# output<- min(which(m_cum >= r))#
+	output<- sample(1:n, 1, prob = m_prob)#
+	return(output)#
+}#
+#
+for(b in 1:B){#
+	for(i in 1:warm){#
+		# if(i == 1){m<- sample(1:n, 1)}#
+		if(i == 1){m<- 14}#
+		if(i != 1){m<- m_posterior(theta1, theta2)}#
+		s1<- sum(y[1:m])#
+		s2<- sum(y)-s1#
+		theta1<- rgamma(1, a1+s1, 1/(m+b1))#
+		theta2<- rgamma(1, a2+s2, 1/(n-m+b2))#
+	}#
+	M[b]<- m#
+	Theta1[b]<- theta1#
+	Theta2[b]<- theta2
+}
+theta1
+theta2
+gibbs sampler#
+m.post.dist<-function(t1, t2, X) {#
+n<-length(X)#
+post.dist<-rep(0,n)#
+for (i in 1:n)#
+post.dist[i]<-exp(-(t1-t2)*i)*(t1/t2)^sum(X[1:i])#
+post.dist<-post.dist/sum(post.dist)#
+return(post.dist)#
+}#
+B<-1000#
+nchain<-200#
+M<-NULL#
+T1<-NULL#
+T2<-NULL#
+for (b in 1:B)#
+{#
+theta1.post<-rep(0, nchain)#
+theta2.post<-rep(0, nchain)#
+m.post<-rep(0, nchain)#
+theta1<-rgamma(1, a1, b1)#
+theta2<-rgamma(1, a2, b2)#
+m<-sample(1:n, 1)#
+for (s in 1:nchain) {#
+theta1.post[s]<-theta1<-rgamma(1, a1+sum(y[1:m]), b1+m)#
+theta2.post[s]<-theta2<-rgamma(1, a2+sum(y)-sum(y[1:m]), b2+n-m)#
+prob0<-m.post.dist(theta1, theta2, y)#
+m.post[s]<-m<-sample(1:n, 1, prob=prob0)#
+}#
+M[b]<-m#
+T1[b]<-theta1#
+T2[b]<-theta2#
+}
+B<- 1000#
+warm<- 200#
+M<- vector("numeric", B)#
+Theta1<- vector("numeric", B)#
+Theta2<<- vector("numeric", B)#
+#
+m_posterior<- function(theta1, theta2){#
+	m_prob<- vector("numeric", n)#
+	for(j in 1:n){#
+		s1<- sum(y[1:j])#
+		m_prob[j]<- (theta1/theta2)^s1*exp(j*(theta2-theta1))#
+	}#
+	m_prob<- m_prob/sum(m_prob)#
+	# m_cum<- cumsum(m_prob)#
+	# r<- runif(1)#
+	# output<- min(which(m_cum >= r))#
+	output<- sample(1:n, 1, prob = m_prob)#
+	return(output)#
+}#
+#
+for(b in 1:B){#
+	for(i in 1:warm){#
+		# if(i == 1){m<- sample(1:n, 1)}#
+		if(i == 1){m<- 14}#
+		if(i != 1){m<- m_posterior(theta1, theta2)}#
+		s1<- sum(y[1:m])#
+		s2<- sum(y)-s1#
+		theta1<- rgamma(1, a1+s1, m+b1)#
+		theta2<- rgamma(1, a2+s2, n-m+b2)#
+	}#
+	M[b]<- m#
+	Theta1[b]<- theta1#
+	Theta2[b]<- theta2#
+}#
+hist(M, 22)
+rand.seed(1)
+y<- c(4,7,10,6,7,16,11,12,15,4,8,6,6,17,9,8,10,11,6,10,11,6)#
+year<- seq(1989, 2010, 1)#
+n<- length(y)#
+#
+# prior#
+a1<- 0.5#
+a2<- 0.5#
+b1<- 0.01#
+b2<- 0.01#
+#
+par(mfrow=c(3,1))#
+plot(year, y, "l", xlab="year", ylab="count")#
+#
+log_gamma<- function(n){#
+	if(!(n%%1)){#
+		output<- 0#
+		for(i in 1:(n-1)){#
+			output<- output+log(i)#
+		}#
+		return(output)#
+	}#
+	else{#
+		n<- n-0.5#
+		output<- 0#
+		for(i in 1:n){#
+			output<- output+log(i)#
+		}#
+		output<- output+0.5*log(pi)+log(choose(n-0.5, n))#
+		return(output)	#
+	}#
+}#
+#
+log_q<- vector("numeric", n)#
+q<- vector("numeric", n)#
+for(m in 1:n){#
+	s1<- sum(y[1:m])#
+	s2<- sum(y)-s1#
+	log_q[m]<- log_gamma(s1+a1)-(s1+a1)*log(m+b1)+log_gamma(s2+a2)-(s2+a2)*log(n-m+b2)#
+	q[m]<- exp(log_q[m])#
+}#
+q<- q/sum(q)#
+barplot(q, names=1989:2010)#
+#
+set.seed(3)#
+#
+B<- 1000#
+warm<- 200#
+M<- vector("numeric", B)#
+Theta1<- vector("numeric", B)#
+Theta2<<- vector("numeric", B)#
+#
+m_posterior<- function(theta1, theta2){#
+	m_prob<- vector("numeric", n)#
+	for(j in 1:n){#
+		s1<- sum(y[1:j])#
+		m_prob[j]<- (theta1/theta2)^s1*exp(j*(theta2-theta1))#
+	}#
+	m_prob<- m_prob/sum(m_prob)#
+	# m_cum<- cumsum(m_prob)#
+	# r<- runif(1)#
+	# output<- min(which(m_cum >= r))#
+	output<- sample(1:n, 1, prob = m_prob)#
+	return(output)#
+}
+for(b in 1:B){#
+	for(i in 1:warm){#
+		# if(i == 1){m<- sample(1:n, 1)}#
+		if(i == 1){m<- 14}#
+		if(i != 1){m<- m_posterior(theta1, theta2)}#
+		s1<- sum(y[1:m])#
+		s2<- sum(y)-s1#
+		theta1<- rgamma(1, a1+s1, m+b1)#
+		theta2<- rgamma(1, a2+s2, n-m+b2)#
+	}#
+	M[b]<- m#
+	Theta1[b]<- theta1#
+	Theta2[b]<- theta2#
+}
+for(b in 1:B){#
+	for(i in 1:warm){#
+		if(i == 1){m<- sample(1:n, 1)}#
+		# if(i == 1){m<- 14}#
+		if(i != 1){m<- m_posterior(theta1, theta2)}#
+		s1<- sum(y[1:m])#
+		s2<- sum(y)-s1#
+		theta1<- rgamma(1, a1+s1, m+b1)#
+		theta2<- rgamma(1, a2+s2, n-m+b2)#
+	}#
+	M[b]<- m#
+	Theta1[b]<- theta1#
+	Theta2[b]<- theta2#
+}#
+hist(M, 22)
+B<- 1000#
+warm<- 200#
+M<- vector("numeric", B)#
+Theta1<- vector("numeric", B)#
+Theta2<<- vector("numeric", B)#
+#
+m_posterior<- function(theta1, theta2){#
+	m_prob<- vector("numeric", n)#
+	for(j in 1:n){#
+		s1<- sum(y[1:j])#
+		s2<- sum(y)-s1#
+		m_prob[j]<- theta1^s1*theta2^s2*exp(j*(theta2-theta1))#
+	}#
+	m_prob<- m_prob/sum(m_prob)#
+	# m_cum<- cumsum(m_prob)#
+	# r<- runif(1)#
+	# output<- min(which(m_cum >= r))#
+	output<- sample(1:n, 1, prob = m_prob)#
+	return(output)#
+}#
+#
+for(b in 1:B){#
+	for(i in 1:warm){#
+		if(i == 1){m<- sample(1:n, 1)}#
+		# if(i == 1){m<- 14}#
+		if(i != 1){m<- m_posterior(theta1, theta2)}#
+		s1<- sum(y[1:m])#
+		s2<- sum(y)-s1#
+		theta1<- rgamma(1, a1+s1, m+b1)#
+		theta2<- rgamma(1, a2+s2, n-m+b2)#
+	}#
+	M[b]<- m#
+	Theta1[b]<- theta1#
+	Theta2[b]<- theta2#
+}
+m_prob<- vector("numeric", n)#
+	for(j in 1:n){#
+		s1<- sum(y[1:j])#
+		s2<- sum(y)-s1#
+		m_prob[j]<- theta1^s1*theta2^s2*exp(j*(theta2-theta1))#
+	}
+m_prob
+m<14
+m<-14
+s1<- sum(y[1:m])#
+		s2<- sum(y)-s1#
+		theta1<- rgamma(1, a1+s1, m+b1)#
+		theta2<- rgamma(1, a2+s2, n-m+b2)
+theta1
+theta2
+for(j in 1:n){#
+		s1<- sum(y[1:j])#
+		s2<- sum(y)-s1#
+		m_prob[j]<- theta1^s1*theta2^s2*exp(j*(theta2-theta1))#
+	}
+m_prob<- m_prob/sum(m_prob)
+m_prob
+m_posterior<- function(theta1, theta2){#
+	m_prob<- vector("numeric", n)#
+	for(j in 1:n){#
+		s1<- sum(y[1:j])#
+		s2<- sum(y)-s1#
+		m_prob[j]<- theta1^s1*theta2^s2*exp(j*(theta2-theta1))#
+	}#
+	m_prob<- m_prob/sum(m_prob)#
+	# m_cum<- cumsum(m_prob)#
+	# r<- runif(1)#
+	# output<- min(which(m_cum >= r))#
+	output<- sample(1:n, 1, prob = m_prob)#
+	return(output)#
+}#
+#
+for(b in 1:B){#
+	for(i in 1:warm){#
+		if(i == 1){m<- sample(1:n, 1)}#
+		# if(i == 1){m<- 14}#
+		if(i != 1){m<- m_posterior(theta1, theta2)}#
+		s1<- sum(y[1:m])#
+		s2<- sum(y)-s1#
+		theta1<- rgamma(1, a1+s1, m+b1)#
+		theta2<- rgamma(1, a2+s2, n-m+b2)#
+	}#
+	M[b]<- m#
+	Theta1[b]<- theta1#
+	Theta2[b]<- theta2#
+}
+m<-14
+s1<- sum(y[1:m])#
+		s2<- sum(y)-s1#
+		theta1<- rgamma(1, a1+s1, m+b1)#
+		theta2<- rgamma(1, a2+s2, n-m+b2)
+for(i in 1:warm){#
+		if(i == 1){m<- sample(1:n, 1)}#
+		# if(i == 1){m<- 14}#
+		if(i != 1){m<- m_posterior(theta1, theta2)}#
+		s1<- sum(y[1:m])#
+		s2<- sum(y)-s1#
+		theta1<- rgamma(1, a1+s1, m+b1)#
+		theta2<- rgamma(1, a2+s2, n-m+b2)#
+	}
+m
+theta1<- rgamma(1, a1+s1, m+b1)#
+		theta2<- rgamma(1, a2+s2, n-m+b2)
+theta1
+theta2
+m_posterior(theta1, theta2)
+m_posterior<- function(theta1, theta2){#
+	m_prob<- vector("numeric", n)#
+	for(j in 1:n){#
+		s1<- sum(y[1:j])#
+		s2<- sum(y)-s1#
+		m_prob[j]<- theta1^s1*theta2^s2*exp(j*(theta2-theta1))#
+	}#
+	m_prob<- m_prob/sum(m_prob)#
+	# m_cum<- cumsum(m_prob)#
+	# r<- runif(1)#
+	# output<- min(which(m_cum >= r))#
+	output<- sample(1:n, 1, prob = m_prob)#
+	return(output)#
+}#
+#
+for(b in 1:B){#
+	for(i in 1:warm){#
+		if(i == 1){m<- sample(1:n, 1)}#
+		# if(i == 1){m<- 14}#
+		if(i != 1){m<- m_posterior(theta1, theta2)}#
+		s1<- sum(y[1:m])#
+		s2<- sum(y)-s1#
+		theta1<- rgamma(1, a1+s1, m+b1)#
+		theta2<- rgamma(1, a2+s2, n-m+b2)#
+	}#
+	M[b]<- m#
+	Theta1[b]<- theta1#
+	Theta2[b]<- theta2#
+}
+for(i in 1:warm){#
+		print(i)#
+		if(i == 1){m<- sample(1:n, 1)}#
+		# if(i == 1){m<- 14}#
+		if(i != 1){m<- m_posterior(theta1, theta2)}#
+		s1<- sum(y[1:m])#
+		s2<- sum(y)-s1#
+		theta1<- rgamma(1, a1+s1, m+b1)#
+		theta2<- rgamma(1, a2+s2, n-m+b2)#
+	}
+for(b in 1:B){#
+	for(i in 1:warm){#
+		print(i)#
+		if(i == 1){m<- sample(1:n, 1)}#
+		# if(i == 1){m<- 14}#
+		if(i != 1){m<- m_posterior(theta1, theta2)}#
+		s1<- sum(y[1:m])#
+		s2<- sum(y)-s1#
+		theta1<- rgamma(1, a1+s1, m+b1)#
+		theta2<- rgamma(1, a2+s2, n-m+b2)#
+	}#
+	M[b]<- m#
+	Theta1[b]<- theta1#
+	Theta2[b]<- theta2#
+}
+m_prob<- vector("numeric", n)#
+	for(j in 1:n){#
+		s1<- sum(y[1:j])#
+		s2<- sum(y)-s1#
+		m_prob[j]<- theta1^s1*theta2^s2*exp(j*(theta2-theta1))#
+	}#
+	m_prob<- m_prob/sum(m_prob)
+m_prob
+m_posterior<- function(theta1, theta2){#
+	m_prob<- vector("numeric", n)#
+	for(j in 1:n){#
+		s1<- sum(y[1:j])#
+		s2<- sum(y)-s1#
+		m_prob[j]<- theta1^s1*theta2^s2*exp(j*(theta2-theta1))#
+	}#
+	m_prob<- m_prob/sum(m_prob)#
+	# m_cum<- cumsum(m_prob)#
+	# r<- runif(1)#
+	# output<- min(which(m_cum >= r))#
+	m_prob[is.na(m_prob)]<- 0.01#
+	output<- sample(1:n, 1, prob = m_prob)#
+	return(output)#
+}#
+#
+for(b in 1:B){#
+	for(i in 1:warm){#
+		print(i)#
+		if(i == 1){m<- sample(1:n, 1)}#
+		# if(i == 1){m<- 14}#
+		if(i != 1){m<- m_posterior(theta1, theta2)}#
+		s1<- sum(y[1:m])#
+		s2<- sum(y)-s1#
+		theta1<- rgamma(1, a1+s1, m+b1)#
+		theta2<- rgamma(1, a2+s2, n-m+b2)#
+	}#
+	M[b]<- m#
+	Theta1[b]<- theta1#
+	Theta2[b]<- theta2#
+}
+hist(M, 22)
+quantile(Theta1, c(0.1, 0.9))#
+quantile(Theta2, c(0.1, 0.9))
+y<- c(4,7,10,6,7,16,11,12,15,4,8,6,6,17,9,8,10,11,6,10,11,6)#
+year<- seq(1989, 2010, 1)#
+n<- length(y)#
+#
+# prior#
+a1<- 0.5#
+a2<- 0.5#
+b1<- 0.01#
+b2<- 0.01#
+#
+par(mfrow=c(3,1))#
+plot(year, y, "l", xlab="year", ylab="count")#
+#
+log_gamma<- function(n){#
+	if(!(n%%1)){#
+		output<- 0#
+		for(i in 1:(n-1)){#
+			output<- output+log(i)#
+		}#
+		return(output)#
+	}#
+	else{#
+		n<- n-0.5#
+		output<- 0#
+		for(i in 1:n){#
+			output<- output+log(i)#
+		}#
+		output<- output+0.5*log(pi)+log(choose(n-0.5, n))#
+		return(output)	#
+	}#
+}#
+#
+log_q<- vector("numeric", n)#
+q<- vector("numeric", n)#
+for(m in 1:n){#
+	s1<- sum(y[1:m])#
+	s2<- sum(y)-s1#
+	log_q[m]<- log_gamma(s1+a1)-(s1+a1)*log(m+b1)+log_gamma(s2+a2)-(s2+a2)*log(n-m+b2)#
+	q[m]<- exp(log_q[m])#
+}#
+q<- q/sum(q)#
+barplot(q, names=1989:2010)#
+#
+B<- 1000#
+warm<- 200#
+M<- vector("numeric", B)#
+Theta1<- vector("numeric", B)#
+Theta2<<- vector("numeric", B)#
+#
+m_posterior<- function(theta1, theta2){#
+	m_prob<- vector("numeric", n)#
+	for(j in 1:n){#
+		s1<- sum(y[1:j])#
+		s2<- sum(y)-s1#
+		m_prob[j]<- theta1^s1*theta2^s2*exp(j*(theta2-theta1))#
+	}#
+	m_prob<- m_prob/sum(m_prob)#
+	# m_cum<- cumsum(m_prob)#
+	# r<- runif(1)#
+	# output<- min(which(m_cum >= r))#
+	m_prob[is.na(m_prob)]<- 0.001#
+	output<- sample(1:n, 1, prob = m_prob)#
+	return(output)#
+}#
+#
+for(b in 1:B){#
+	for(i in 1:warm){#
+		# print(i)#
+		if(i == 1){m<- sample(1:n, 1)}#
+		# if(i == 1){m<- 14}#
+		if(i != 1){m<- m_posterior(theta1, theta2)}#
+		s1<- sum(y[1:m])#
+		s2<- sum(y)-s1#
+		theta1<- rgamma(1, a1+s1, m+b1)#
+		theta2<- rgamma(1, a2+s2, n-m+b2)#
+	}#
+	M[b]<- m#
+	Theta1[b]<- theta1#
+	Theta2[b]<- theta2#
+}#
+hist(M, 22)#
+#
+quantile(Theta1, c(0.1, 0.9))#
+quantile(Theta2, c(0.1, 0.9))
+y<- c(4,7,10,6,7,16,11,12,15,4,8,6,6,17,9,8,10,11,6,10,11,6)#
+year<- seq(1989, 2010, 1)#
+n<- length(y)#
+#
+# prior#
+a1<- 0.5#
+a2<- 0.5#
+b1<- 0.01#
+b2<- 0.01#
+#
+par(mfrow=c(3,1))#
+plot(year, y, "l", xlab="year", ylab="count")#
+#
+log_gamma<- function(n){#
+	if(!(n%%1)){#
+		output<- 0#
+		for(i in 1:(n-1)){#
+			output<- output+log(i)#
+		}#
+		return(output)#
+	}#
+	else{#
+		n<- n-0.5#
+		output<- 0#
+		for(i in 1:n){#
+			output<- output+log(i)#
+		}#
+		output<- output+0.5*log(pi)+log(choose(n-0.5, n))#
+		return(output)	#
+	}#
+}#
+#
+log_q<- vector("numeric", n)#
+q<- vector("numeric", n)#
+for(m in 1:n){#
+	s1<- sum(y[1:m])#
+	s2<- sum(y)-s1#
+	log_q[m]<- log_gamma(s1+a1)-(s1+a1)*log(m+b1)+log_gamma(s2+a2)-(s2+a2)*log(n-m+b2)#
+	q[m]<- exp(log_q[m])#
+}#
+q<- q/sum(q)#
+barplot(q, names=1989:2010)#
+#
+B<- 5000#
+warm<- 500#
+M<- vector("numeric", B)#
+Theta1<- vector("numeric", B)#
+Theta2<<- vector("numeric", B)#
+#
+m_posterior<- function(theta1, theta2){#
+	m_prob<- vector("numeric", n)#
+	for(j in 1:n){#
+		s1<- sum(y[1:j])#
+		s2<- sum(y)-s1#
+		m_prob[j]<- theta1^s1*theta2^s2*exp(j*(theta2-theta1))#
+	}#
+	m_prob<- m_prob/sum(m_prob)#
+	# m_cum<- cumsum(m_prob)#
+	# r<- runif(1)#
+	# output<- min(which(m_cum >= r))#
+	m_prob[is.na(m_prob)]<- 0.001#
+	output<- sample(1:n, 1, prob = m_prob)#
+	return(output)#
+}#
+#
+for(b in 1:B){#
+	for(i in 1:warm){#
+		# print(i)#
+		if(i == 1){m<- sample(1:n, 1)}#
+		# if(i == 1){m<- 14}#
+		if(i != 1){m<- m_posterior(theta1, theta2)}#
+		s1<- sum(y[1:m])#
+		s2<- sum(y)-s1#
+		theta1<- rgamma(1, a1+s1, m+b1)#
+		theta2<- rgamma(1, a2+s2, n-m+b2)#
+	}#
+	M[b]<- m#
+	Theta1[b]<- theta1#
+	Theta2[b]<- theta2#
+}#
+hist(M, 22)#
+#
+quantile(Theta1, c(0.1, 0.9))#
+quantile(Theta2, c(0.1, 0.9))
+hist(Theta1)
+par(mfrow=c(3,1))#
+hist(Theta1)#
+hist(Theta2)
+Theta2
+mean(Theta1)#
+mean(Theta2)
+median(Theta1)#
+median(Theta2)
+quantile(M, c(0.1, 0.9))#
+mean(M)#
+median(M)
+hist(Theta2)
+hist(Theta2, 22)
+hist(Theta1, 22)
+?histogram
+?hist
+hist(Theta2, 42)
+hist(Theta2, 22)
+par(mfrow=c(3,1))#
+hist(Theta1, 22)#
+hist(Theta2, 22)
+par(mfrow=c(2,1))#
+hist(Theta1, 22)#
+hist(Theta2, 22)
+hist(M, 23)
+hist(M, 21)
+par(mfrow=c(2,1))#
+hist(Theta1, 23)#
+hist(Theta2, 23)
+par(mfrow=c(3,1))#
+plot(year, y, "l", xlab="year", ylab="count")
+barplot(q, names=1989:2010)
+hist(M, 23)
+y<- c(4,7,10,6,7,16,11,12,15,4,8,6,6,17,9,8,10,11,6,10,11,6)#
+year<- seq(1989, 2010, 1)#
+n<- length(y)#
+#
+# prior#
+a1<- 0.5#
+a2<- 0.5#
+b1<- 0.01#
+b2<- 0.01#
+#
+par(mfrow=c(3,1))#
+plot(year, y, "l", xlab="year", ylab="count")#
+#
+log_gamma<- function(n){#
+	if(!(n%%1)){#
+		output<- 0#
+		for(i in 1:(n-1)){#
+			output<- output+log(i)#
+		}#
+		return(output)#
+	}#
+	else{#
+		n<- n-0.5#
+		output<- 0#
+		for(i in 1:n){#
+			output<- output+log(i)#
+		}#
+		output<- output+0.5*log(pi)+log(choose(n-0.5, n))#
+		return(output)	#
+	}#
+}#
+#
+log_q<- vector("numeric", n)#
+q<- vector("numeric", n)#
+for(m in 1:n){#
+	s1<- sum(y[1:m])#
+	s2<- sum(y)-s1#
+	log_q[m]<- log_gamma(s1+a1)-(s1+a1)*log(m+b1)+log_gamma(s2+a2)-(s2+a2)*log(n-m+b2)#
+	q[m]<- exp(log_q[m])#
+}#
+q<- q/sum(q)#
+barplot(q, names=1989:2010)#
+#
+B<- 1000#
+warm<- 200#
+M<- vector("numeric", B)#
+Theta1<- vector("numeric", B)#
+Theta2<<- vector("numeric", B)#
+#
+m_posterior<- function(theta1, theta2){#
+	m_prob<- vector("numeric", n)#
+	for(j in 1:n){#
+		s1<- sum(y[1:j])#
+		s2<- sum(y)-s1#
+		m_prob[j]<- theta1^s1*theta2^s2*exp(j*(theta2-theta1))#
+	}#
+	m_prob<- m_prob/sum(m_prob)#
+	# m_cum<- cumsum(m_prob)#
+	# r<- runif(1)#
+	# output<- min(which(m_cum >= r))#
+	m_prob[is.na(m_prob)]<- 0.001#
+	output<- sample(1:n, 1, prob = m_prob)#
+	return(output)#
+}#
+#
+for(b in 1:B){#
+	for(i in 1:warm){#
+		# print(i)#
+		if(i == 1){m<- sample(1:n, 1)}#
+		# if(i == 1){m<- 14}#
+		if(i != 1){m<- m_posterior(theta1, theta2)}#
+		s1<- sum(y[1:m])#
+		s2<- sum(y)-s1#
+		theta1<- rgamma(1, a1+s1, m+b1)#
+		theta2<- rgamma(1, a2+s2, n-m+b2)#
+	}#
+	M[b]<- m#
+	Theta1[b]<- theta1#
+	Theta2[b]<- theta2#
+}#
+hist(M, 23)#
+#
+quantile(M, c(0.1, 0.9))#
+mean(M)#
+median(M)#
+#
+quantile(Theta1, c(0.1, 0.9))#
+quantile(Theta2, c(0.1, 0.9))#
+mean(Theta1)#
+mean(Theta2)#
+median(Theta1)#
+median(Theta2)#
+#
+par(mfrow=c(2,1))#
+hist(Theta1, 23)#
+hist(Theta2, 23)
+par(mfrow=c(3,1))
+plot(year, y, "l", xlab="year", ylab="count")
+barplot(q, names=1989:2010)
+hist(M, 23)
+table(M)
+par(mfrow=c(2,1))
+hist(Theta1, 23)
+hist(Theta2, 100)
+table(Theta2)
+quantile(Theta1, c(0.1, 0.9))
+mean(Theta1)
+median(Theta1)
 table(Theta1)
 mode(Theta1)
 mean(Theta1)
@@ -39,1543 +1980,6 @@ a=1
 write.table(a, "atest.txt",append=T)
 b=2
 write.table(b, "atest.txt",append=T)
-x<- array(1, 1000)
-sd(X)
-sd(x)
-library(mcmcse)
-mcse(x)
-P=c(1,2,3)
-P
-P[-c(1)]
-P[-c(3)]
-m<- 1
-args <- commandArgs(TRUE)#
-m<- as.numeric(args[1])	# number of change point#
-#
-# read mcmc results#
-P<- read.table(paste(m, "P.txt", sep=''), row.names = NULL)#
-P<- P[,-1]#
-S<- read.table(paste(m, "S.txt", sep=''), row.names = NULL)#
-S<- S[,-1]#
-theta<- read.table(paste(m, "theta.txt", sep=''), row.names = NULL)#
-theta<- theta[,-1]#
-#
-G<- dim(P)[1]	# number of total simulation effort G#
-#
-raw<- read.table("change-point-2.txt")#
-y<- raw[,1]#
-n<- length(y)	# sample size#
-#
-a<- 0.1*n/(m+1)-0.1#
-b<- 0.1#
-#
-# posterior mean estimates#
-P_star<- apply(P, 2, mean)#
-theta_star<- apply(theta, 2, mean)#
-#
-# posterior#
-theta_post<- array(NA, c(G, 2))#
-S_post<- array(NA, c(G, n))#
-P_post<- array(NA, G)
-paste(m, "P.txt", sep='')
-m
-m<-1
-read mcmc results#
-P<- read.table(paste(m, "P.txt", sep=''), row.names = NULL)#
-P<- P[,-1]#
-S<- read.table(paste(m, "S.txt", sep=''), row.names = NULL)#
-S<- S[,-1]#
-theta<- read.table(paste(m, "theta.txt", sep=''), row.names = NULL)#
-theta<- theta[,-1]#
-#
-G<- dim(P)[1]	# number of total simulation effort G#
-#
-raw<- read.table("change-point-2.txt")#
-y<- raw[,1]#
-n<- length(y)	# sample size#
-#
-a<- 0.1*n/(m+1)-0.1#
-b<- 0.1#
-#
-# posterior mean estimates#
-P_star<- apply(P, 2, mean)#
-theta_star<- apply(theta, 2, mean)#
-#
-# posterior#
-theta_post<- array(NA, c(G, 2))#
-S_post<- array(NA, c(G, n))#
-P_post<- array(NA, G)
-m
-read mcmc results#
-P<- read.table(paste(m, "P.txt", sep=''), row.names = NULL)#
-P<- P[,-1]#
-S<- read.table(paste(m, "S.txt", sep=''), row.names = NULL)#
-S<- S[,-1]#
-theta<- read.table(paste(m, "theta.txt", sep=''), row.names = NULL)#
-theta<- theta[,-1]#
-#
-G<- dim(P)[1]	# number of total simulation effort G#
-#
-raw<- read.table("change-point-2.txt")#
-y<- raw[,1]#
-n<- length(y)	# sample size#
-#
-a<- 0.1*n/(m+1)-0.1#
-b<- 0.1#
-#
-# posterior mean estimates#
-P_star<- apply(P, 2, mean)#
-theta_star<- apply(theta, 2, mean)#
-#
-# posterior#
-theta_post<- array(NA, c(G, 2))#
-S_post<- array(NA, c(G, n))#
-P_post<- array(NA, G)
-i<-2
-S_cur<- S[i,]#
-	count<- ftable(S_cur)-1#
-	for(j in 1:(m+1)){#
-		theta_post[G, j]<- pgamma(theta_star[j], m+1+sum(y[S_cur == i]), count[i]+2)#
-	}
-head(theta_post)
-S[1,1]
-S[1,2]
-S_cur
-ftable(S_cir)
-ftable(S_cur)
-?ftable
-table(S_cur)
-S_cur[1]
-S_cur[2]
-S_cur[3]
-dim(S_cur)
-S_test<-c(S_cur)
-dim(S_test)
-S_test
-ftable(S_test)
-P
-as.matrix(P)
-as.matrix(S)
-S_cur<-as.matrix(S)[2,]
-S_cur
-ftable(S_cur)
-read mcmc results#
-P<- read.table(paste(m, "P.txt", sep=''), row.names = NULL)#
-P<- as.matrix(P[,-1])#
-S<- read.table(paste(m, "S.txt", sep=''), row.names = NULL)#
-S<- as.matrix(S[,-1])#
-theta<- read.table(paste(m, "theta.txt", sep=''), row.names = NULL)#
-theta<- as.matrix(theta[,-1])#
-#
-G<- dim(P)[1]	# number of total simulation effort G#
-#
-raw<- read.table("change-point-2.txt")#
-y<- raw[,1]#
-n<- length(y)	# sample size#
-#
-a<- 0.1*n/(m+1)-0.1#
-b<- 0.1#
-#
-# posterior mean estimates#
-P_star<- apply(P, 2, mean)#
-theta_star<- apply(theta, 2, mean)#
-#
-# posterior#
-theta_post<- array(NA, c(G, 2))#
-S_post<- array(NA, c(G, n))#
-P_post<- array(NA, G)#
-#
-for(i in 1:G){#
-	S_cur<- S[i,]#
-	count<- ftable(S_cur)-1#
-	for(j in 1:(m+1)){#
-		theta_post[G, j]<- pgamma(theta_star[j], m+1+sum(y[S_cur == i]), count[i]+2)#
-	}#
-	# S_post[i, n]<- m+1#
-	# S_post[i, 1]<- 1#
-		# for(t in (n-1):2){#
-		# if(S_post[i, t+1] == 1){#
-			# S_cur[t] = 1#
-		# }#
-		# else{#
-			# prob<- c(mass[t, (S_cur[t+1]-1)]*(1-P_cur[S_cur[t+1]-1]), mass[t, S_cur[t+1]]*P_cur[S_cur[t+1]])#
-			# S_cur[t]<- sample((S_cur[t+1]-1):S_cur[t+1], 1, prob = prob)#
-		# }#
-	# }#
-}
-head(theta_post)
-S_cur
-ftable(S_cur)
-ftable(S_cur)-1
-for(j in 1:(m+1)){#
-		theta_post[G, j]<- pgamma(theta_star[j], m+1+sum(y[S_cur == i]), count[i]+2)#
-	}
-i
-tail(theta_post)
-theta_star[1]
-pgamma(theta_star[j], m+1+sum(y[S_cur == i]), count[i]+2)
-pgamma(theta_star[j], shape = m+1+sum(y[S_cur == i]), rate = count[i]+2)
-S_cur<- S[i,]#
-	count<- ftable(S_cur)-1#
-	for(j in 1:(m+1)){#
-		theta_post[G, j]<- pgamma(theta_star[j], m+1+sum(y[S_cur == j]), count[j]+2)#
-	}
-tail(theta_post)
-G<- dim(P)[1]	# number of total simulation effort G#
-#
-raw<- read.table("change-point-2.txt")#
-y<- raw[,1]#
-n<- length(y)	# sample size#
-#
-a<- 0.1*n/(m+1)-0.1#
-b<- 0.1#
-#
-# posterior mean estimates#
-P_star<- apply(P, 2, mean)#
-theta_star<- apply(theta, 2, mean)#
-#
-# posterior#
-theta_post<- array(NA, c(G, 2))#
-S_post<- array(NA, c(G, n))#
-P_post<- array(NA, G)#
-#
-for(i in 1:G){#
-	S_cur<- S[i,]#
-	count<- ftable(S_cur)-1#
-	for(j in 1:(m+1)){#
-		theta_post[G, j]<- pgamma(theta_star[j], m+1+sum(y[S_cur == j]), count[j]+2)#
-	}#
-	# S_post[i, n]<- m+1#
-	# S_post[i, 1]<- 1#
-		# for(t in (n-1):2){#
-		# if(S_post[i, t+1] == 1){#
-			# S_cur[t] = 1#
-		# }#
-		# else{#
-			# prob<- c(mass[t, (S_cur[t+1]-1)]*(1-P_cur[S_cur[t+1]-1]), mass[t, S_cur[t+1]]*P_cur[S_cur[t+1]])#
-			# S_cur[t]<- sample((S_cur[t+1]-1):S_cur[t+1], 1, prob = prob)#
-		# }#
-	# }#
-}
-head(theta_post)
-tail(theta_post)
-m<-1
-read mcmc results#
-P<- read.table(paste(m, "P.txt", sep=''), row.names = NULL)#
-P<- as.matrix(P[,-1])#
-S<- read.table(paste(m, "S.txt", sep=''), row.names = NULL)#
-S<- as.matrix(S[,-1])#
-theta<- read.table(paste(m, "theta.txt", sep=''), row.names = NULL)#
-theta<- as.matrix(theta[,-1])#
-#
-G<- dim(P)[1]	# number of total simulation effort G#
-#
-raw<- read.table("change-point-2.txt")#
-y<- raw[,1]#
-n<- length(y)	# sample size#
-#
-a<- 0.1*n/(m+1)-0.1#
-b<- 0.1#
-#
-# posterior mean estimates#
-P_star<- apply(P, 2, mean)#
-theta_star<- apply(theta, 2, mean)#
-#
-# function#
-p6<- function(t, k, theta, P, mass){	# equition (6)#
-	if(k == 1){#
-		output<- P[k]*mass[t-1, k]#
-	}#
-	if(k > 1){#
-		output<- (1-P[k-1])*mass[t-1, k-1] + P[k]*mass[t-1, k]  #
-	}#
-	return(output)#
-}#
-#
-# posterior#
-theta_post<- array(NA, c(G, 2))#
-S_post<- array(NA, c(G, n))#
-P_post<- array(NA, G)#
-#
-for(i in 1:G){#
-	# update theta_post#
-	S_cur<- S[i,]#
-	count<- ftable(S_cur)-1#
-	for(j in 1:(m+1)){#
-		theta_post[G, j]<- pgamma(theta_star[j], m+1+sum(y[S_cur == j]), count[j]+2)#
-	}#
-	# # update mass distribution#
-	# mass<- array(0, c(n, m+1))	# mass distribution for S#
-	# for(t in 1:n){#
-		# if(t == 1){#
-			# mass[1, 1]<- 1#
-		# }	#
-		# if(t > 1){#
-			# for(k in 1:(m+1)){#
-				# #temp<- p6(t, k, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k])+p6(t, k-1, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k-1])#
-				# mass[t, k]<- p6(t, k, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k])#
-			# }#
-			# #mass[t, 1]<- 1-sum(mass[t, -1])#
-			# mass[t,]<- mass[t,]/sum(mass[t,]) #
-		# }#
-	# }#
-	# # update S_post#
-	# S_post[i, n]<- m+1#
-	# S_post[i, 1]<- 1#
-		# for(t in (n-1):2){#
-		# if(S_post[i, t+1] == 1){#
-			# S_cur[t] = 1#
-		# }#
-		# else{#
-			# prob<- c(mass[t, (S_cur[t+1]-1)]*(1-P_cur[S_cur[t+1]-1]), mass[t, S_cur[t+1]]*P_cur[S_cur[t+1]])#
-			# S_cur[t]<- sample((S_cur[t+1]-1):S_cur[t+1], 1, prob = prob)#
-		# }#
-	# }#
-}
-theta_post
-read mcmc results#
-P<- read.table(paste(m, "P.txt", sep=''), row.names = NULL)#
-P<- as.matrix(P[,-1])#
-S<- read.table(paste(m, "S.txt", sep=''), row.names = NULL)#
-S<- as.matrix(S[,-1])#
-theta<- read.table(paste(m, "theta.txt", sep=''), row.names = NULL)#
-theta<- as.matrix(theta[,-1])#
-#
-G<- dim(P)[1]	# number of total simulation effort G#
-#
-raw<- read.table("change-point-2.txt")#
-y<- raw[,1]#
-n<- length(y)	# sample size#
-#
-a<- 0.1*n/(m+1)-0.1#
-b<- 0.1#
-#
-# posterior mean estimates#
-P_star<- apply(P, 2, mean)#
-theta_star<- apply(theta, 2, mean)#
-#
-# function#
-p6<- function(t, k, theta, P, mass){	# equition (6)#
-	if(k == 1){#
-		output<- P[k]*mass[t-1, k]#
-	}#
-	if(k > 1){#
-		output<- (1-P[k-1])*mass[t-1, k-1] + P[k]*mass[t-1, k]  #
-	}#
-	return(output)#
-}#
-#
-# posterior#
-theta_post<- array(NA, c(G, 2))#
-S_post<- array(NA, c(G, n))#
-P_post<- array(NA, G)#
-#
-for(i in 1:G){#
-	# update theta_post#
-	S_cur<- S[i,]#
-	count<- ftable(S_cur)-1#
-	for(j in 1:(m+1)){#
-		theta_post[G, j]<- pgamma(theta_star[j], m+1+sum(y[S_cur == j]), count[j]+2)#
-	}#
-	# # update mass distribution#
-	# mass<- array(0, c(n, m+1))	# mass distribution for S#
-	# for(t in 1:n){#
-		# if(t == 1){#
-			# mass[1, 1]<- 1#
-		# }	#
-		# if(t > 1){#
-			# for(k in 1:(m+1)){#
-				# #temp<- p6(t, k, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k])+p6(t, k-1, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k-1])#
-				# mass[t, k]<- p6(t, k, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k])#
-			# }#
-			# #mass[t, 1]<- 1-sum(mass[t, -1])#
-			# mass[t,]<- mass[t,]/sum(mass[t,]) #
-		# }#
-	# }#
-	# # update S_post#
-	# S_post[i, n]<- m+1#
-	# S_post[i, 1]<- 1#
-		# for(t in (n-1):2){#
-		# if(S_post[i, t+1] == 1){#
-			# S_cur[t] = 1#
-		# }#
-		# else{#
-			# prob<- c(mass[t, (S_cur[t+1]-1)]*(1-P_cur[S_cur[t+1]-1]), mass[t, S_cur[t+1]]*P_cur[S_cur[t+1]])#
-			# S_cur[t]<- sample((S_cur[t+1]-1):S_cur[t+1], 1, prob = prob)#
-		# }#
-	# }#
-}
-head(theta_post)
-m
-G
-model comparision #####
-#
-args <- commandArgs(TRUE)#
-m<- as.numeric(args[1])	# number of change point#
-#
-# read mcmc results#
-P<- read.table(paste(m, "P.txt", sep=''), row.names = NULL)#
-P<- as.matrix(P[,-1])#
-S<- read.table(paste(m, "S.txt", sep=''), row.names = NULL)#
-S<- as.matrix(S[,-1])#
-theta<- read.table(paste(m, "theta.txt", sep=''), row.names = NULL)#
-theta<- as.matrix(theta[,-1])#
-#
-G<- dim(P)[1]	# number of total simulation effort G#
-#
-raw<- read.table("change-point-2.txt")#
-y<- raw[,1]#
-n<- length(y)	# sample size#
-#
-a<- 0.1*n/(m+1)-0.1#
-b<- 0.1#
-#
-# posterior mean estimates#
-P_star<- apply(P, 2, mean)#
-theta_star<- apply(theta, 2, mean)#
-#
-# function#
-p6<- function(t, k, theta, P, mass){	# equition (6)#
-	if(k == 1){#
-		output<- P[k]*mass[t-1, k]#
-	}#
-	if(k > 1){#
-		output<- (1-P[k-1])*mass[t-1, k-1] + P[k]*mass[t-1, k]  #
-	}#
-	return(output)#
-}#
-#
-# posterior#
-theta_post<- array(NA, c(G, 2))#
-S_post<- array(NA, c(G, n))#
-P_post<- array(NA, G)#
-#
-for(i in 1:G){#
-	# update theta_post#
-	S_cur<- S[i,]#
-	count<- ftable(S_cur)-1#
-	for(j in 1:(m+1)){#
-		theta_post[G, j]<- pgamma(theta_star[j], m+1+sum(y[S_cur == j]), count[j]+2)#
-	}#
-	# # update mass distribution#
-	# mass<- array(0, c(n, m+1))	# mass distribution for S#
-	# for(t in 1:n){#
-		# if(t == 1){#
-			# mass[1, 1]<- 1#
-		# }	#
-		# if(t > 1){#
-			# for(k in 1:(m+1)){#
-				# #temp<- p6(t, k, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k])+p6(t, k-1, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k-1])#
-				# mass[t, k]<- p6(t, k, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k])#
-			# }#
-			# #mass[t, 1]<- 1-sum(mass[t, -1])#
-			# mass[t,]<- mass[t,]/sum(mass[t,]) #
-		# }#
-	# }#
-	# # update S_post#
-	# S_post[i, n]<- m+1#
-	# S_post[i, 1]<- 1#
-		# for(t in (n-1):2){#
-		# if(S_post[i, t+1] == 1){#
-			# S_cur[t] = 1#
-		# }#
-		# else{#
-			# prob<- c(mass[t, (S_cur[t+1]-1)]*(1-P_cur[S_cur[t+1]-1]), mass[t, S_cur[t+1]]*P_cur[S_cur[t+1]])#
-			# S_cur[t]<- sample((S_cur[t+1]-1):S_cur[t+1], 1, prob = prob)#
-		# }#
-	# }#
-}
-m
-m<-1
-read mcmc results#
-P<- read.table(paste(m, "P.txt", sep=''), row.names = NULL)#
-P<- as.matrix(P[,-1])#
-S<- read.table(paste(m, "S.txt", sep=''), row.names = NULL)#
-S<- as.matrix(S[,-1])#
-theta<- read.table(paste(m, "theta.txt", sep=''), row.names = NULL)#
-theta<- as.matrix(theta[,-1])#
-#
-G<- dim(P)[1]	# number of total simulation effort G#
-#
-raw<- read.table("change-point-2.txt")#
-y<- raw[,1]#
-n<- length(y)	# sample size#
-#
-a<- 0.1*n/(m+1)-0.1#
-b<- 0.1#
-#
-# posterior mean estimates#
-P_star<- apply(P, 2, mean)#
-theta_star<- apply(theta, 2, mean)#
-#
-# function#
-p6<- function(t, k, theta, P, mass){	# equition (6)#
-	if(k == 1){#
-		output<- P[k]*mass[t-1, k]#
-	}#
-	if(k > 1){#
-		output<- (1-P[k-1])*mass[t-1, k-1] + P[k]*mass[t-1, k]  #
-	}#
-	return(output)#
-}#
-#
-# posterior#
-theta_post<- array(NA, c(G, 2))#
-S_post<- array(NA, c(G, n))#
-P_post<- array(NA, G)#
-#
-for(i in 1:G){#
-	# update theta_post#
-	S_cur<- S[i,]#
-	count<- ftable(S_cur)-1#
-	for(j in 1:(m+1)){#
-		theta_post[G, j]<- pgamma(theta_star[j], m+1+sum(y[S_cur == j]), count[j]+2)#
-	}#
-	# # update mass distribution#
-	# mass<- array(0, c(n, m+1))	# mass distribution for S#
-	# for(t in 1:n){#
-		# if(t == 1){#
-			# mass[1, 1]<- 1#
-		# }	#
-		# if(t > 1){#
-			# for(k in 1:(m+1)){#
-				# #temp<- p6(t, k, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k])+p6(t, k-1, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k-1])#
-				# mass[t, k]<- p6(t, k, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k])#
-			# }#
-			# #mass[t, 1]<- 1-sum(mass[t, -1])#
-			# mass[t,]<- mass[t,]/sum(mass[t,]) #
-		# }#
-	# }#
-	# # update S_post#
-	# S_post[i, n]<- m+1#
-	# S_post[i, 1]<- 1#
-		# for(t in (n-1):2){#
-		# if(S_post[i, t+1] == 1){#
-			# S_cur[t] = 1#
-		# }#
-		# else{#
-			# prob<- c(mass[t, (S_cur[t+1]-1)]*(1-P_cur[S_cur[t+1]-1]), mass[t, S_cur[t+1]]*P_cur[S_cur[t+1]])#
-			# S_cur[t]<- sample((S_cur[t+1]-1):S_cur[t+1], 1, prob = prob)#
-		# }#
-	# }#
-}
-theta_post
-theta_post<- array(NA, c(G, m+1))
-theta_post
-S[1,]
-S[2,]
-S_cur<- S[1,]
-count<- ftable(S_cur)-1
-count
-for(j in 1:(m+1)){#
-		theta_post[G, j]<- pgamma(theta_star[j], m+1+sum(y[S_cur == j]), count[j]+2)#
-	}
-j
-pgamma(theta_star[j], m+1+sum(y[S_cur == j]), count[j]+2)
-P[-1,-1]
-dim(P[-1,-1])
-dim(P)
-dim(P[-1,])
-dim(S)
-dim(S[-1,])
-m
-read mcmc results#
-P<- read.table(paste(m, "P.txt", sep=''), row.names = NULL)#
-P<- as.matrix(P[,-1])#
-P<- P[-1,]#
-S<- read.table(paste(m, "S.txt", sep=''), row.names = NULL)#
-S<- as.matrix(S[,-1])#
-S<- S[-1,]#
-theta<- read.table(paste(m, "theta.txt", sep=''), row.names = NULL)#
-theta<- as.matrix(theta[,-1])#
-theta<- theta[-1,]#
-#
-G<- dim(P)[1]	# number of total simulation effort G#
-#
-raw<- read.table("change-point-2.txt")#
-y<- raw[,1]#
-n<- length(y)	# sample size#
-#
-a<- 0.1*n/(m+1)-0.1#
-b<- 0.1#
-#
-# posterior mean estimates#
-P_star<- apply(P, 2, mean)#
-theta_star<- apply(theta, 2, mean)#
-#
-# function#
-p6<- function(t, k, theta, P, mass){	# equition (6)#
-	if(k == 1){#
-		output<- P[k]*mass[t-1, k]#
-	}#
-	if(k > 1){#
-		output<- (1-P[k-1])*mass[t-1, k-1] + P[k]*mass[t-1, k]  #
-	}#
-	return(output)#
-}#
-#
-# posterior#
-theta_post<- array(NA, c(G, m+1))#
-S_post<- array(NA, c(G, n))#
-P_post<- array(NA, G)#
-#
-for(i in 1:G){#
-	# update theta_post#
-	S_cur<- S[i,]#
-	count<- ftable(S_cur)-1#
-	for(j in 1:(m+1)){#
-		theta_post[G, j]<- pgamma(theta_star[j], m+1+sum(y[S_cur == j]), count[j]+2)#
-	}#
-	# # update mass distribution#
-	# mass<- array(0, c(n, m+1))	# mass distribution for S#
-	# for(t in 1:n){#
-		# if(t == 1){#
-			# mass[1, 1]<- 1#
-		# }	#
-		# if(t > 1){#
-			# for(k in 1:(m+1)){#
-				# #temp<- p6(t, k, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k])+p6(t, k-1, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k-1])#
-				# mass[t, k]<- p6(t, k, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k])#
-			# }#
-			# #mass[t, 1]<- 1-sum(mass[t, -1])#
-			# mass[t,]<- mass[t,]/sum(mass[t,]) #
-		# }#
-	# }#
-	# # update S_post#
-	# S_post[i, n]<- m+1#
-	# S_post[i, 1]<- 1#
-		# for(t in (n-1):2){#
-		# if(S_post[i, t+1] == 1){#
-			# S_cur[t] = 1#
-		# }#
-		# else{#
-			# prob<- c(mass[t, (S_cur[t+1]-1)]*(1-P_cur[S_cur[t+1]-1]), mass[t, S_cur[t+1]]*P_cur[S_cur[t+1]])#
-			# S_cur[t]<- sample((S_cur[t+1]-1):S_cur[t+1], 1, prob = prob)#
-		# }#
-	# }#
-}
-head(theta_post)
-m+1
-theta_star
-theta_star[1]
-theta_star[2]
-pgamma(theta_star[j], m+1+sum(y[S_cur == j]), count[j]+2)
-read mcmc results#
-P<- read.table(paste(m, "P.txt", sep=''), row.names = NULL)#
-P<- as.matrix(P[,-1])#
-P<- P[-1,]#
-S<- read.table(paste(m, "S.txt", sep=''), row.names = NULL)#
-S<- as.matrix(S[,-1])#
-S<- S[-1,]#
-theta<- read.table(paste(m, "theta.txt", sep=''), row.names = NULL)#
-theta<- as.matrix(theta[,-1])#
-theta<- theta[-1,]#
-#
-G<- dim(P)[1]	# number of total simulation effort G#
-#
-raw<- read.table("change-point-2.txt")#
-y<- raw[,1]#
-n<- length(y)	# sample size#
-#
-a<- 0.1*n/(m+1)-0.1#
-b<- 0.1#
-#
-# posterior mean estimates#
-P_star<- apply(P, 2, mean)#
-theta_star<- apply(theta, 2, mean)#
-#
-# function#
-p6<- function(t, k, theta, P, mass){	# equition (6)#
-	if(k == 1){#
-		output<- P[k]*mass[t-1, k]#
-	}#
-	if(k > 1){#
-		output<- (1-P[k-1])*mass[t-1, k-1] + P[k]*mass[t-1, k]  #
-	}#
-	return(output)#
-}#
-#
-# posterior#
-theta_post<- array(NA, c(G, m+1))#
-S_post<- array(NA, c(G, n))#
-P_post<- array(NA, G)#
-#
-for(i in 1:G){#
-	# update theta_post#
-	S_cur<- S[i,]#
-	count<- ftable(S_cur)-1#
-	for(j in 1:(m+1)){#
-		theta_post[i, j]<- pgamma(theta_star[j], m+1+sum(y[S_cur == j]), count[j]+2)#
-	}#
-	# # update mass distribution#
-	# mass<- array(0, c(n, m+1))	# mass distribution for S#
-	# for(t in 1:n){#
-		# if(t == 1){#
-			# mass[1, 1]<- 1#
-		# }	#
-		# if(t > 1){#
-			# for(k in 1:(m+1)){#
-				# #temp<- p6(t, k, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k])+p6(t, k-1, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k-1])#
-				# mass[t, k]<- p6(t, k, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k])#
-			# }#
-			# #mass[t, 1]<- 1-sum(mass[t, -1])#
-			# mass[t,]<- mass[t,]/sum(mass[t,]) #
-		# }#
-	# }#
-	# # update S_post#
-	# S_post[i, n]<- m+1#
-	# S_post[i, 1]<- 1#
-		# for(t in (n-1):2){#
-		# if(S_post[i, t+1] == 1){#
-			# S_cur[t] = 1#
-		# }#
-		# else{#
-			# prob<- c(mass[t, (S_cur[t+1]-1)]*(1-P_cur[S_cur[t+1]-1]), mass[t, S_cur[t+1]]*P_cur[S_cur[t+1]])#
-			# S_cur[t]<- sample((S_cur[t+1]-1):S_cur[t+1], 1, prob = prob)#
-		# }#
-	# }#
-}
-head(theta_post)
-tail(theta_post)
-for(i in 1:G){#
-	# update theta_post#
-	S_cur<- S[i,]#
-	count<- ftable(S_cur)-1#
-	for(j in 1:(m+1)){#
-		theta_post[i, j]<- pgamma(theta_star[j], m+1+sum(y[S_cur == j]), count[j]+2)#
-	}#
-	# update mass distribution#
-	mass<- array(0, c(n, m+1))	# mass distribution for S#
-	for(t in 1:n){#
-		if(t == 1){#
-			mass[1, 1]<- 1#
-		}	#
-		if(t > 1){#
-			for(k in 1:(m+1)){#
-				#temp<- p6(t, k, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k])+p6(t, k-1, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k-1])#
-				mass[t, k]<- p6(t, k, theta_star, P[i,], mass)*ppois(y[t], theta_star[k])#
-			}#
-			#mass[t, 1]<- 1-sum(mass[t, -1])#
-			mass[t,]<- mass[t,]/sum(mass[t,]) #
-		}#
-	}#
-	# update S_post#
-	S_post[i, n]<- m+1#
-	S_post[i, 1]<- 1#
-		for(t in (n-1):2){#
-		if(S_post[i, t+1] == 1){#
-			S_post[i, t] = 1#
-		}#
-		else{#
-			prob<- c(mass[t, (S_post[i, t+1]-1)]*(1-P[i, S_post[i, t+1]-1]), mass[t, S_post[i, t+1]]*P[i, S_post[i, t+1]])#
-			S_post[i, t]<- sample((S_post[i, t+1]-1):S_post[i, t+1], 1, prob = prob)#
-		}#
-	}#
-}
-head(S_post)
-tail(S_post)
-apply(S, 2, mean)
-head(S)
-tail(S)
-P_star
-theta_post<- array(NA, c(G, m+1))#
-S_post<- array(NA, c(G, n))#
-P_post<- array(NA, c(G, m))#
-#
-for(i in 1:G){#
-	# update theta_post#
-	S_cur<- S[i,]#
-	count<- ftable(S_cur)-1#
-	for(j in 1:(m+1)){#
-		theta_post[i, j]<- pgamma(theta_star[j], m+1+sum(y[S_cur == j]), count[j]+2)#
-	}#
-	# update mass distribution#
-	mass<- array(0, c(n, m+1))	# mass distribution for S#
-	for(t in 1:n){#
-		if(t == 1){#
-			mass[1, 1]<- 1#
-		}	#
-		if(t > 1){#
-			for(k in 1:(m+1)){#
-				#temp<- p6(t, k, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k])+p6(t, k-1, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k-1])#
-				mass[t, k]<- p6(t, k, theta_star, P[i,], mass)*ppois(y[t], theta_star[k])#
-			}#
-			#mass[t, 1]<- 1-sum(mass[t, -1])#
-			mass[t,]<- mass[t,]/sum(mass[t,]) #
-		}#
-	}#
-	# update S_post#
-	S_post[i, n]<- m+1#
-	S_post[i, 1]<- 1#
-		for(t in (n-1):2){#
-		if(S_post[i, t+1] == 1){#
-			S_post[i, t] = 1#
-		}#
-		else{#
-			prob<- c(mass[t, (S_post[i, t+1]-1)]*(1-P[i, S_post[i, t+1]-1]), mass[t, S_post[i, t+1]]*P[i, S_post[i, t+1]])#
-			S_post[i, t]<- sample((S_post[i, t+1]-1):S_post[i, t+1], 1, prob = prob)#
-		}#
-	}#
-	# update P_post#
-	count_post<- ftable(S_post[i,])-1#
-	for(j in 1:m){#
-		P_post[i, j]<- pbeta(P_star[j], a+count_post[j], b+1)#
-	}#
-}
-head(P_post)
-apply(theta_post, 2, prod)
-head(theta_post)
-prod(theta_post[1,])
-prod(theta_post[1,])
-apply(theta_post, 1, prod)
-apply(P_post, 1, prod)
-theta_post_hat<- mean(apply(theta_post, 1, prod))#
-P_post_hat<- mean(apply(P_post, 1, prod))
-theta_post_hat
-P_post_hat
-apply(P_star, 1, pbeta, a, b)
-?apply
-P_star
-apply(P_star, 2, pbeta, a, b)
-a
-b
-apply(P_star, 1, pbeta, a, b)
-dim(P_star)
-apply(as.array(P_star), 1, pbeta, a, b)
-apply(as.array(P_star), 2, pbeta, a, b)
-apply(as.array(P_star), 1, pbeta, a, b)
-theta_hat<- prod(apply(as.array(theta_star, 1, pgamma, m+1, 1)))
-theta_hat<- prod(apply(as.array(theta_star), 1, pgamma, m+1, 1))
-theta_hat
-P_hat<- prod(apply(as.array(P_star), 1, pbeta, a, b))
-theta_star
-raw<- read.table("change-point-2.txt")#
-y<- raw[,1]#
-#
-n<- length(y)	# sample size#
-#
-#prior information for updating P#
-a<- 0.1*n/(m+1)-0.1#
-b<- 0.1#
-#
-P<- array(0.5, c(1, m+1))	# initial transition matrix#
-P[1, m+1]<- 1#
-theta<- array(n/(m+1), c(1, m+1))	# initial theta#
-S<- array(0, c(1, n))	# initial S#
-comb<- c(P[-c(m+1)], S[2:(n-1)], theta)	# exclude P[m+1] = 1 & S[1] = 1 & S[n] = m+1#
-iter<- 0#
-#
-p6<- function(t, k, theta, P, mass){	# equition (6)#
-	if(t == 1){#
-		output<- 1#
-	}#
-	else{#
-		if(k == 1){#
-			output<- P[k]*mass[t-1, k]#
-		}#
-		if(k > 1){#
-			output<- (1-P[k-1])*mass[t-1, k-1] + P[k]*mass[t-1, k]  #
-		}#
-	}#
-	return(output)#
-}#
-#
-thresh<- 10000	# threshold for checking stopping criteria
-iter<- iter+1#
-	P_cur<- P[iter, ]#
-	theta_cur<- theta[iter, ]#
-	S_cur<- S[iter, ]#
-	# update mass distribution#
-	mass<- array(0, c(n, m+1))	# mass distribution for S#
-	for(t in 1:n){#
-		for(k in 1:(m+1)){#
-			temp<- p6(t, k, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k])+p6(t, k-1, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k-1])#
-			mass[t, k]<- p6(t, k, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k])/temp#
-		}#
-			#mass[t, 1]<- 1-sum(mass[t, -1])#
-			#mass[t,]<- mass[t,]/sum(mass[t,]) #
-		}
-p6(1, 1, theta_cur, P_cur, mass)
-p6(0, 1, theta_cur, P_cur, mass)
-p6(1, 0, theta_cur, P_cur, mass)
-p6(2, 0, theta_cur, P_cur, mass)
-p6<- function(t, k, theta, P, mass){	# equition (6)#
-	if(t == 1){#
-		output<- 1#
-	}#
-	else{#
-		if(k == 0){#
-			output<- 0#
-		}#
-		if(k == 1){#
-			output<- P[k]*mass[t-1, k]#
-		}#
-		if(k > 1){#
-			output<- (1-P[k-1])*mass[t-1, k-1] + P[k]*mass[t-1, k]  #
-		}#
-	}#
-	return(output)#
-}
-iter<- iter+1#
-	P_cur<- P[iter, ]#
-	theta_cur<- theta[iter, ]#
-	S_cur<- S[iter, ]#
-	# update mass distribution#
-	mass<- array(0, c(n, m+1))	# mass distribution for S#
-	for(t in 1:n){#
-		for(k in 1:(m+1)){#
-			temp<- p6(t, k, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k])+p6(t, k-1, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k-1])#
-			mass[t, k]<- p6(t, k, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k])/temp#
-		}#
-			#mass[t, 1]<- 1-sum(mass[t, -1])#
-			#mass[t,]<- mass[t,]/sum(mass[t,]) #
-		}
-raw<- read.table("change-point-2.txt")#
-y<- raw[,1]#
-#
-n<- length(y)	# sample size#
-#
-#prior information for updating P#
-a<- 0.1*n/(m+1)-0.1#
-b<- 0.1#
-#
-P<- array(0.5, c(1, m+1))	# initial transition matrix#
-P[1, m+1]<- 1#
-theta<- array(n/(m+1), c(1, m+1))	# initial theta#
-S<- array(0, c(1, n))	# initial S#
-comb<- c(P[-c(m+1)], S[2:(n-1)], theta)	# exclude P[m+1] = 1 & S[1] = 1 & S[n] = m+1#
-iter<- 0#
-#
-p6<- function(t, k, theta, P, mass){	# equition (6)#
-	if(t == 1){#
-		output<- 1#
-	}#
-	else{#
-		if(k == 0){#
-			output<- 0#
-		}#
-		if(k == 1){#
-			output<- P[k]*mass[t-1, k]#
-		}#
-		if(k > 1){#
-			output<- (1-P[k-1])*mass[t-1, k-1] + P[k]*mass[t-1, k]  #
-		}#
-	}#
-	return(output)#
-}#
-#
-thresh<- 10000	# thresho
-iter<- iter+1#
-	P_cur<- P[iter, ]#
-	theta_cur<- theta[iter, ]#
-	S_cur<- S[iter, ]#
-	# update mass distribution#
-	mass<- array(0, c(n, m+1))	# mass distribution for S#
-	for(t in 1:n){#
-		for(k in 1:(m+1)){#
-			temp<- p6(t, k, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k])+p6(t, k-1, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k-1])#
-			mass[t, k]<- p6(t, k, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k])/temp#
-		}#
-			#mass[t, 1]<- 1-sum(mass[t, -1])#
-			#mass[t,]<- mass[t,]/sum(mass[t,]) #
-		}
-p6(2, 0, theta_cur, P_cur, mass)
-p6(1, 0, theta_cur, P_cur, mass)
-p6(1, 1, theta_cur, P_cur, mass)
-p6(1, 2, theta_cur, P_cur, mass)
-p6<- function(t, k, theta, P, mass){	# equition (6)#
-	if(k == 0){#
-		output<- 0#
-	}#
-	if(k == 1){#
-		output<- P[k]*mass[t-1, k]#
-	}#
-	if(k > 1){#
-		output<- (1-P[k-1])*mass[t-1, k-1] + P[k]*mass[t-1, k]  #
-	}#
-	return(output)#
-}
-mass<- array(0, c(n, m+1))	# mass distribution for S#
-	for(t in 1:n){#
-		if(t == 1){#
-			mass[1, 1]<- 1#
-		}#
-		else{#
-		for(k in 1:(m+1)){#
-			temp<- p6(t, k, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k])+p6(t, k-1, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k-1])#
-			mass[t, k]<- p6(t, k, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k])/temp#
-		}#
-			#mass[t, 1]<- 1-sum(mass[t, -1])#
-			#mass[t,]<- mass[t,]/sum(mass[t,]) #
-		}#
-		}
-p6(t, k, theta_cur, P_cur, mass)
-p6(t, k-1, theta_cur, P_cur, mass)
-ppois(y[t], theta_cur[k-1])
-theta_cur
-prod(theta_cur[0])
-theta_cur[0]
-as.numeric(theta_cur[0])
-(theta_cur[0])
-c(theta_cur[0])
-prod(theta_cur[0])
-prod(theta_cur[1])
-prod(theta_cur[2])
-ppois(2,0)
-ppois(2,0)
-ppois(2,1)
-ppois(2,1)
-mass<- array(0, c(n, m+1))	# mass distribution for S#
-	for(t in 1:n){#
-		if(t == 1){#
-			mass[1, 1]<- 1#
-		}#
-		else{#
-			for(k in 1:(m+1)){#
-				temp<- p6(t, k, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k])+p6(t, k-1, theta_cur, P_cur, mass)*ppois(y[t], prod(theta_cur[k-1]))#
-				mass[t, k]<- p6(t, k, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k])/temp#
-			}#
-				#mass[t, 1]<- 1-sum(mass[t, -1])#
-				#mass[t,]<- mass[t,]/sum(mass[t,]) #
-			}#
-		}
-mass
-S_cur[n]<- m+1#
-	S_cur[1]<- 1#
-	for(t in (n-1):2){#
-		if(S_cur[t+1] == 1){#
-			S_cur[t] = 1#
-		}#
-		else{#
-			prob<- c(mass[t, (S_cur[t+1]-1)]*(1-P_cur[S_cur[t+1]-1]), mass[t, S_cur[t+1]]*P_cur[S_cur[t+1]])#
-			S_cur[t]<- sample((S_cur[t+1]-1):S_cur[t+1], 1, prob = prob)#
-		}#
-	}
-S_cur
-update P#
-	count<- ftable(S_cur)-1	# counts for n_ii#
-	for(i in 1:m){#
-		P_cur[i]<- rbeta(1, a+count[i], b+1)#
-	}
-P
-S_cur[n]<- m+1#
-	S_cur[1]<- 1#
-	for(t in (n-1):2){#
-		if(S_cur[t+1] == 1){#
-			S_cur[t] = 1#
-		}#
-		else{#
-			prob<- c(mass[t, (S_cur[t+1]-1)]*(1-P_cur[S_cur[t+1]-1]), mass[t, S_cur[t+1]]*P_cur[S_cur[t+1]])#
-			S_cur[t]<- sample((S_cur[t+1]-1):S_cur[t+1], 1, prob = prob)#
-		}#
-	}
-S
-S_cur
-temp
-k=1
-temp<- p6(t, k, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k])+p6(t, k-1, theta_cur, P_cur, mass)*ppois(y[t], prod(theta_cur[k-1]))#
-				mass[t, k]<- p6(t, k, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k])/temp
-t
-temp
-mass[t,k]
-m<-2
-raw<- read.table("change-point-2.txt")#
-y<- raw[,1]#
-#
-n<- length(y)	# sample size#
-#
-#prior information for updating P#
-a<- 0.1*n/(m+1)-0.1#
-b<- 0.1#
-#
-P<- array(0.5, c(1, m+1))	# initial transition matrix#
-P[1, m+1]<- 1#
-theta<- array(n/(m+1), c(1, m+1))	# initial theta#
-S<- array(0, c(1, n))	# initial S#
-comb<- c(P[-c(m+1)], S[2:(n-1)], theta)	# exclude P[m+1] = 1 & S[1] = 1 & S[n] = m+1#
-iter<- 0#
-#
-p6<- function(t, k, theta, P, mass){	# equition (6)#
-	if(k == 0){#
-		output<- 0#
-	}#
-	if(k == 1){#
-		output<- P[k]*mass[t-1, k]#
-	}#
-	if(k > 1){#
-		output<- (1-P[k-1])*mass[t-1, k-1] + P[k]*mass[t-1, k]  #
-	}#
-	return(output)#
-}#
-#
-thresh<- 10000	# threshold for checking stopping criteria
-iter<- iter+1#
-	P_cur<- P[iter, ]#
-	theta_cur<- theta[iter, ]#
-	S_cur<- S[iter, ]#
-	# update mass distribution#
-	mass<- array(0, c(n, m+1))	# mass distribution for S#
-	for(t in 1:n){#
-		if(t == 1){#
-			mass[1, 1]<- 1#
-		}#
-		else{#
-			for(k in 1:(m+1)){#
-				temp<- p6(t, k, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k])+p6(t, k-1, theta_cur, P_cur, mass)*ppois(y[t], prod(theta_cur[k-1]))#
-				mass[t, k]<- p6(t, k, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k])/temp#
-			}#
-				#mass[t, 1]<- 1-sum(mass[t, -1])#
-				#mass[t,]<- mass[t,]/sum(mass[t,]) #
-			}#
-		}
-mass
-S_cur[n]<- m+1#
-	S_cur[1]<- 1#
-	for(t in (n-1):2){#
-		if(S_cur[t+1] == 1){#
-			S_cur[t] = 1#
-		}#
-		else{#
-			prob<- c(mass[t, (S_cur[t+1]-1)]*(1-P_cur[S_cur[t+1]-1]), mass[t, S_cur[t+1]]*P_cur[S_cur[t+1]])#
-			S_cur[t]<- sample((S_cur[t+1]-1):S_cur[t+1], 1, prob = prob)#
-		}#
-	}
-S_cur
-m<-1
-raw<- read.table("change-point-2.txt")#
-y<- raw[,1]#
-#
-n<- length(y)	# sample size#
-#
-#prior information for updating P#
-a<- 0.1*n/(m+1)-0.1#
-b<- 0.1#
-#
-P<- array(0.5, c(1, m+1))	# initial transition matrix#
-P[1, m+1]<- 1#
-theta<- array(n/(m+1), c(1, m+1))	# initial theta#
-S<- array(0, c(1, n))	# initial S#
-comb<- c(P[-c(m+1)], S[2:(n-1)], theta)	# exclude P[m+1] = 1 & S[1] = 1 & S[n] = m+1#
-iter<- 0#
-#
-p6<- function(t, k, theta, P, mass){	# equition (6)#
-	if(k == 0){#
-		output<- 0#
-	}#
-	if(k == 1){#
-		output<- P[k]*mass[t-1, k]#
-	}#
-	if(k > 1){#
-		output<- (1-P[k-1])*mass[t-1, k-1] + P[k]*mass[t-1, k]  #
-	}#
-	return(output)#
-}#
-#
-thresh<- 10000	# threshol
-iter<- iter+1#
-	P_cur<- P[iter, ]#
-	theta_cur<- theta[iter, ]#
-	S_cur<- S[iter, ]#
-	# update mass distribution#
-	mass<- array(0, c(n, m+1))	# mass distribution for S#
-	for(t in 1:n){#
-		if(t == 1){#
-			mass[1, 1]<- 1#
-		}#
-		else{#
-			for(k in 1:(m+1)){#
-				temp<- p6(t, k, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k])+p6(t, k-1, theta_cur, P_cur, mass)*ppois(y[t], prod(theta_cur[k-1]))#
-				mass[t, k]<- p6(t, k, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k])/temp#
-			}#
-				#mass[t, 1]<- 1-sum(mass[t, -1])#
-				#mass[t,]<- mass[t,]/sum(mass[t,]) #
-			}#
-		}
-mass
-S_cur[n]<- m+1#
-	S_cur[1]<- 1#
-	for(t in (n-1):2){#
-		if(S_cur[t+1] == 1){#
-			S_cur[t] = 1#
-		}#
-		else{#
-			prob<- c(mass[t, (S_cur[t+1]-1)]*(1-P_cur[S_cur[t+1]-1]), mass[t, S_cur[t+1]]*P_cur[S_cur[t+1]])#
-			S_cur[t]<- sample((S_cur[t+1]-1):S_cur[t+1], 1, prob = prob)#
-		}#
-	}
-S_cur
-y_post<- array(0, n)#
-mass<- array(0, c(n, m+1))	# mass distribution for S#
-for(t in 1:n){#
-	if(t == 1){#
-		mass[1, 1]<- 1#
-	}#
-	else{#
-		for(k in 1:(m+1)){#
-			temp<- p6(t, k, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k])+p6(t, k-1, theta_cur, P_cur, mass)*ppois(y[t], prod(theta_cur[k-1]))#
-			mass[t, k]<- p6(t, k, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k])/temp#
-		}#
-				#mass[t, 1]<- 1-sum(mass[t, -1])#
-				#mass[t,]<- mass[t,]/sum(mass[t,]) #
-		}#
-	for(k in 1:m){#
-		y_post[t] = y_post[i]+ppois(y[t], theta_star[k])*p6(t, k, theta_star, P_star)#
-	}#
-}
-p6<- function(t, k, theta, P, mass){	# equition (6)#
-	if(k == 0){#
-		output<- 0#
-	}#
-	if(k == 1){#
-		output<- P[k]*mass[t-1, k]#
-	}#
-	if(k > 1){#
-		output<- (1-P[k-1])*mass[t-1, k-1] + P[k]*mass[t-1, k]  #
-	}#
-	return(output)#
-}
-y_post<- array(0, n)#
-mass<- array(0, c(n, m+1))	# mass distribution for S#
-for(t in 1:n){#
-	if(t == 1){#
-		mass[1, 1]<- 1#
-	}#
-	else{#
-		for(k in 1:(m+1)){#
-			temp<- p6(t, k, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k])+p6(t, k-1, theta_cur, P_cur, mass)*ppois(y[t], prod(theta_cur[k-1]))#
-			mass[t, k]<- p6(t, k, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k])/temp#
-		}#
-				#mass[t, 1]<- 1-sum(mass[t, -1])#
-				#mass[t,]<- mass[t,]/sum(mass[t,]) #
-		}#
-	for(k in 1:m){#
-		y_post[t] = y_post[i]+ppois(y[t], theta_star[k])*p6(t, k, theta_star, P_star, mass)#
-	}#
-}
-y_post<- array(0, n)#
-mass<- array(0, c(n, m+1))	# mass distribution for S#
-for(t in 1:n){#
-	if(t == 1){#
-		mass[1, 1]<- 1#
-	}#
-	else{#
-		for(k in 1:(m+1)){#
-			temp<- p6(t, k, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k])+p6(t, k-1, theta_cur, P_cur, mass)*ppois(y[t], prod(theta_cur[k-1]))#
-			mass[t, k]<- p6(t, k, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k])/temp#
-		}#
-				#mass[t, 1]<- 1-sum(mass[t, -1])#
-				#mass[t,]<- mass[t,]/sum(mass[t,]) #
-		}#
-	for(k in 1:(m+1)){#
-		y_post[t] = y_post[i]+ppois(y[t], theta_star[k])*p6(t, k, theta_star, P_star, mass)#
-	}#
-}
-*p6(t, k, theta_star, P_star, mass)
-p6(t, k, theta_star, P_star, mass)
-k
-mass
-y_post<- array(0, n)#
-mass<- array(0, c(n, m+1))	# mass distribution for S#
-for(t in 1:n){#
-	if(t == 1){#
-		mass[1, 1]<- 1#
-		y_post[t]<- y_post[i]+ppois(y[t], theta_star[k])#
-	}#
-	else{#
-		for(k in 1:(m+1)){#
-			temp<- p6(t, k, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k])+p6(t, k-1, theta_cur, P_cur, mass)*ppois(y[t], prod(theta_cur[k-1]))#
-			mass[t, k]<- p6(t, k, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k])/temp#
-			y_post[t] = y_post[i]+ppois(y[t], theta_star[k])*p6(t, k, theta_star, P_star, mass)#
-		}#
-	}#
-#
-}
-y_post
-y_post<- array(0, n)#
-mass<- array(0, c(n, m+1))	# mass distribution for S#
-for(t in 1:n){#
-	if(t == 1){#
-		mass[1, 1]<- 1#
-		y_post[t]<- y_post[i]+ppois(y[t], theta_star[k])#
-	}#
-	else{#
-		for(k in 1:(m+1)){#
-			temp<- p6(t, k, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k])+p6(t, k-1, theta_cur, P_cur, mass)*ppois(y[t], prod(theta_cur[k-1]))#
-			mass[t, k]<- p6(t, k, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k])/temp#
-		}#
-		mass[t,]<- mass[t,]/sum(mass[t,])#
-	}#
-	for(k in 1:(m+1)){#
-		y_post[t] = y_post[i]+ppois(y[t], theta_star[k])*p6(t, k, theta_star, P_star, mass)#
-	}#
-#
-}
-y_post<- array(0, n)#
-mass<- array(0, c(n, m+1))	# mass distribution for S#
-for(t in 1:n){#
-	if(t == 1){#
-		mass[1, 1]<- 1#
-		y_post[t]<- y_post[i]+ppois(y[t], theta_star[k])#
-	}#
-	else{#
-		for(k in 1:(m+1)){#
-			temp<- p6(t, k, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k])+p6(t, k-1, theta_cur, P_cur, mass)*ppois(y[t], prod(theta_cur[k-1]))#
-			mass[t, k]<- p6(t, k, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k])/temp#
-		}#
-		mass[t,]<- mass[t,]/sum(mass[t,])#
-		for(k in 1:(m+1)){#
-			y_post[t] = y_post[i]+ppois(y[t], theta_star[k])*p6(t, k, theta_star, P_star, mass)#
-		}#
-	}#
-#
-}
-y_post
-theta_post_den<- mean(apply(theta_post, 1, prod))#
-P_post_den<- mean(apply(P_post, 1, prod))#
-theta_den<- prod(apply(as.array(theta_star), 1, pgamma, m+1, 1))#
-P_den<- prod(apply(as.array(P_star), 1, pbeta, a, b))#
-y_den<- prod(y_den)
-y_den<- prod(y_post)
-y_den*theta_den*P_den/(theta_post_den*P_post_den)
-ln(y_den*theta_den*P_den/(theta_post_den*P_post_den))
-log(y_den*theta_den*P_den/(theta_post_den*P_post_den))
-apply(as.array(theta_star), 1, pgamma, m+1, 1)
-log(apply(as.array(theta_star), 1, pgamma, m+1, 1))
-ln_theta_den<- sum(log(apply(as.array(theta_star), 1, pgamma, m+1, 1)))
-theta_post_den<- mean(apply(theta_post, 1, prod))#
-P_post_den<- mean(apply(P_post, 1, prod))#
-ln_theta_den<- sum(log(apply(as.array(theta_star), 1, pgamma, m+1, 1)))#
-ln_P_den<- sum(log(apply(as.array(P_star), 1, pbeta, a, b)))#
-ln_y_den<- sum(log(y_post))
-ln_bayes<- ln_y_den+ln_theta_den+ln_P_den - log(theta_post_den)-log(P_post_den)
-ln_bayes
-m<-2]
-m<-2
-read mcmc results#
-P<- read.table(paste(m, "P.txt", sep=''), row.names = NULL)#
-P<- as.matrix(P[,-1])#
-P<- P[-1,]#
-S<- read.table(paste(m, "S.txt", sep=''), row.names = NULL)#
-S<- as.matrix(S[,-1])#
-S<- S[-1,]#
-theta<- read.table(paste(m, "theta.txt", sep=''), row.names = NULL)#
-theta<- as.matrix(theta[,-1])#
-theta<- theta[-1,]#
-#
-G<- dim(P)[1]	# number of total simulation effort G#
-#
-raw<- read.table("change-point-2.txt")#
-y<- raw[,1]#
-n<- length(y)	# sample size#
-#
-a<- 0.1*n/(m+1)-0.1#
-b<- 0.1#
-#
-# posterior mean estimates#
-P_star<- apply(P, 2, mean)#
-theta_star<- apply(theta, 2, mean)#
-#
-# function#
-p6<- function(t, k, theta, P, mass){	# equition (6)#
-	if(k == 0){#
-		output<- 0#
-	}#
-	if(k == 1){#
-		output<- P[k]*mass[t-1, k]#
-	}#
-	if(k > 1){#
-		output<- (1-P[k-1])*mass[t-1, k-1] + P[k]*mass[t-1, k]  #
-	}#
-	return(output)#
-}#
-#
-# posterior#
-theta_post<- array(NA, c(G, m+1))#
-S_post<- array(NA, c(G, n))#
-P_post<- array(NA, c(G, m))#
-#
-for(i in 1:G){#
-	# update theta_post#
-	S_cur<- S[i,]#
-	count<- ftable(S_cur)-1#
-	for(j in 1:(m+1)){#
-		theta_post[i, j]<- pgamma(theta_star[j], m+1+sum(y[S_cur == j]), count[j]+2)#
-	}#
-	# update mass distribution#
-	mass<- array(0, c(n, m+1))	# mass distribution for S#
-	for(t in 1:n){#
-		if(t == 1){#
-			mass[1, 1]<- 1#
-		}#
-		else{#
-			for(k in 1:(m+1)){#
-				temp<- p6(t, k, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k])+p6(t, k-1, theta_cur, P_cur, mass)*ppois(y[t], prod(theta_cur[k-1]))#
-				mass[t, k]<- p6(t, k, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k])/temp#
-			}#
-				#mass[t, 1]<- 1-sum(mass[t, -1])#
-				#mass[t,]<- mass[t,]/sum(mass[t,]) #
-			}#
-		}#
-	# update S_post#
-	S_post[i, n]<- m+1#
-	S_post[i, 1]<- 1#
-		for(t in (n-1):2){#
-		if(S_post[i, t+1] == 1){#
-			S_post[i, t] = 1#
-		}#
-		else{#
-			prob<- c(mass[t, (S_post[i, t+1]-1)]*(1-P[i, S_post[i, t+1]-1]), mass[t, S_post[i, t+1]]*P[i, S_post[i, t+1]])#
-			S_post[i, t]<- sample((S_post[i, t+1]-1):S_post[i, t+1], 1, prob = prob)#
-		}#
-	}#
-	# update P_post#
-	count_post<- ftable(S_post[i,])-1#
-	for(j in 1:m){#
-		P_post[i, j]<- pbeta(P_star[j], a+count_post[j], b+1)#
-	}#
-}#
-#
-y_post<- array(0, n)#
-mass<- array(0, c(n, m+1))	# mass distribution for S#
-for(t in 1:n){#
-	if(t == 1){#
-		mass[1, 1]<- 1#
-		y_post[t]<- y_post[i]+ppois(y[t], theta_star[k])#
-	}#
-	else{#
-		for(k in 1:(m+1)){#
-			temp<- p6(t, k, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k])+p6(t, k-1, theta_cur, P_cur, mass)*ppois(y[t], prod(theta_cur[k-1]))#
-			mass[t, k]<- p6(t, k, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k])/temp#
-		}#
-		mass[t,]<- mass[t,]/sum(mass[t,])#
-		for(k in 1:(m+1)){#
-			y_post[t] = y_post[i]+ppois(y[t], theta_star[k])*p6(t, k, theta_star, P_star, mass)#
-		}#
-	}#
-#
-}#
-#
-theta_post_den<- mean(apply(theta_post, 1, prod))#
-P_post_den<- mean(apply(P_post, 1, prod))#
-ln_theta_den<- sum(log(apply(as.array(theta_star), 1, pgamma, m+1, 1)))#
-ln_P_den<- sum(log(apply(as.array(P_star), 1, pbeta, a, b)))#
-ln_y_den<- sum(log(y_post))#
-#
-ln_bayes<- ln_y_den+ln_theta_den+ln_P_den - log(theta_post_den)-log(P_post_den)#
-print(ln_bayes)
-m<-1
-read mcmc results#
-P<- read.table(paste(m, "P.txt", sep=''), row.names = NULL)#
-P<- as.matrix(P[,-1])#
-P<- P[-1,]#
-S<- read.table(paste(m, "S.txt", sep=''), row.names = NULL)#
-S<- as.matrix(S[,-1])#
-S<- S[-1,]#
-theta<- read.table(paste(m, "theta.txt", sep=''), row.names = NULL)#
-theta<- as.matrix(theta[,-1])#
-theta<- theta[-1,]#
-#
-G<- dim(P)[1]	# number of total simulation effort G#
-#
-raw<- read.table("change-point-2.txt")#
-y<- raw[,1]#
-n<- length(y)	# sample size#
-#
-a<- 0.1*n/(m+1)-0.1#
-b<- 0.1#
-#
-# posterior mean estimates#
-P_star<- apply(P, 2, mean)#
-theta_star<- apply(theta, 2, mean)#
-#
-# function#
-p6<- function(t, k, theta, P, mass){	# equition (6)#
-	if(k == 0){#
-		output<- 0#
-	}#
-	if(k == 1){#
-		output<- P[k]*mass[t-1, k]#
-	}#
-	if(k > 1){#
-		output<- (1-P[k-1])*mass[t-1, k-1] + P[k]*mass[t-1, k]  #
-	}#
-	return(output)#
-}#
-#
-# posterior#
-theta_post<- array(NA, c(G, m+1))#
-S_post<- array(NA, c(G, n))#
-P_post<- array(NA, c(G, m))#
-#
-for(i in 1:G){#
-	# update theta_post#
-	S_cur<- S[i,]#
-	count<- ftable(S_cur)-1#
-	for(j in 1:(m+1)){#
-		theta_post[i, j]<- pgamma(theta_star[j], m+1+sum(y[S_cur == j]), count[j]+2)#
-	}#
-	# update mass distribution#
-	mass<- array(0, c(n, m+1))	# mass distribution for S#
-	for(t in 1:n){#
-		if(t == 1){#
-			mass[1, 1]<- 1#
-		}#
-		else{#
-			for(k in 1:(m+1)){#
-				temp<- p6(t, k, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k])+p6(t, k-1, theta_cur, P_cur, mass)*ppois(y[t], prod(theta_cur[k-1]))#
-				mass[t, k]<- p6(t, k, theta_cur, P_cur, mass)*ppois(y[t], theta_cur[k])/temp#
-			}#
-				#mass[t, 1]<- 1-sum(mass[t, -1])#
-				#mass[t,]<- mass[t,]/sum(mass[t,]) #
-			}#
-		}#
-	# update S_post#
-	S_post[i, n]<- m+1#
-	S_post[i, 1]<- 1#
-		for(t in (n-1):2){#
-		if(S_post[i, t+1] == 1){#
-			S_post[i, t] = 1#
-		}#
-		else{#
-			prob<- c(mass[t, (S_post[i, t+1]-1)]*(1-P[i, S_post[i, t+1]-1]), mass[t, S_post[i, t+1]]*P[i, S_post[i, t+1]])#
-			S_post[i, t]<- sample((S_post[i, t+1]-1):S_post[i, t+1], 1, prob = prob)#
-		}#
-	}#
-	# update P_post#
-	count_post<- ftable(S_post[i,])-1#
-	for(j in 1:m){#
-		P_post[i, j]<- pbeta(P_star[j], a+count_post[j], b+1)#
-	}#
-}#
-#
-y_post<- array(0, n)#
-mass<- array(0, c(n, m+1))	# mass distribution for S#
-for(t in 1:n){#
-	if(t == 1){#
-		mass[1, 1]<- 1#
-		y_post[t]<- y_post[i]+ppois(y[t], theta_star[k])#
-	}#
-	else{#
-		for(k in 1:(m+1)){#
-			temp<- p6(t, k, theta_star, P_star, mass)*ppois(y[t], theta_star[k])+p6(t, k-1, theta_star, P_star, mass)*ppois(y[t], prod(theta_star[k-1]))#
-			mass[t, k]<- p6(t, k, theta_star, P_star, mass)*ppois(y[t], theta_star[k])/temp#
-		}#
-		mass[t,]<- mass[t,]/sum(mass[t,])#
-		for(k in 1:(m+1)){#
-			y_post[t] = y_post[i]+ppois(y[t], theta_star[k])*p6(t, k, theta_star, P_star, mass)#
-		}#
-	}#
-#
-}#
-#
-theta_post_den<- mean(apply(theta_post, 1, prod))#
-P_post_den<- mean(apply(P_post, 1, prod))#
-ln_theta_den<- sum(log(apply(as.array(theta_star), 1, pgamma, m+1, 1)))#
-ln_P_den<- sum(log(apply(as.array(P_star), 1, pbeta, a, b)))#
-ln_y_den<- sum(log(y_post))#
-#
-ln_bayes<- ln_y_den+ln_theta_den+ln_P_den - log(theta_post_den)-log(P_post_den)#
-print(ln_bayes)
 m<-1
 read mcmc results#
 P<- read.table(paste(m, "P.txt", sep=''), row.names = NULL)#
@@ -1639,131 +2043,12 @@ for(i in 1:G){#
 				temp<- p6(t, k, theta_star, P_update, mass)*ppois(y[t], theta_star[k])+p6(t, k-1, theta_star, P_update, mass)*ppois(y[t], prod(theta_star[k-1]))#
 				mass[t, k]<- p6(t, k, theta_star, P_update, mass)*ppois(y[t], theta_star[k])/temp#
 			}#
-				#mass[t, 1]<- 1-sum(mass[t, -1])#
-				#mass[t,]<- mass[t,]/sum(mass[t,]) #
-			}#
 		}#
+	}#
 	# update S_post#
 	S_post[i, n]<- m+1#
 	S_post[i, 1]<- 1#
-		for(t in (n-1):2){#
-		if(S_post[i, t+1] == 1){#
-			S_post[i, t] = 1#
-		}#
-		else{#
-			prob<- c(mass[t, (S_post[i, t+1]-1)]*(1-P[i, S_post[i, t+1]-1]), mass[t, S_post[i, t+1]]*P[i, S_post[i, t+1]])#
-			S_post[i, t]<- sample((S_post[i, t+1]-1):S_post[i, t+1], 1, prob = prob)#
-		}#
-	}#
-	# update P_post#
-	count_post<- ftable(S_post[i,])-1#
-	for(j in 1:m){#
-		P_update[i]<- rbeta(1, a+count_post[i], b+1)#
-		P_post[i, j]<- pbeta(P_star[j], a+count_post[j], b+1)#
-	}#
-}#
-#
-y_post<- array(0, n)#
-mass<- array(0, c(n, m+1))	# mass distribution for S#
-for(t in 1:n){#
-	if(t == 1){#
-		mass[1, 1]<- 1#
-		y_post[t]<- y_post[i]+ppois(y[t], theta_star[k])#
-	}#
-	else{#
-		for(k in 1:(m+1)){#
-			temp<- p6(t, k, theta_star, P_star, mass)*ppois(y[t], theta_star[k])+p6(t, k-1, theta_star, P_star, mass)*ppois(y[t], prod(theta_star[k-1]))#
-			mass[t, k]<- p6(t, k, theta_star, P_star, mass)*ppois(y[t], theta_star[k])/temp#
-		}#
-		mass[t,]<- mass[t,]/sum(mass[t,])#
-		for(k in 1:(m+1)){#
-			y_post[t] = y_post[i]+ppois(y[t], theta_star[k])*p6(t, k, theta_star, P_star, mass)#
-		}#
-	}#
-#
-}#
-#
-theta_post_den<- mean(apply(theta_post, 1, prod))#
-P_post_den<- mean(apply(P_post, 1, prod))#
-ln_theta_den<- sum(log(apply(as.array(theta_star), 1, pgamma, m+1, 1)))#
-ln_P_den<- sum(log(apply(as.array(P_star), 1, pbeta, a, b)))#
-ln_y_den<- sum(log(y_post))#
-#
-ln_bayes<- ln_y_den+ln_theta_den+ln_P_den - log(theta_post_den)-log(P_post_den)#
-print(ln_bayes)
-P_update
-P_star
-m<-1
-read mcmc results#
-P<- read.table(paste(m, "P.txt", sep=''), row.names = NULL)#
-P<- as.matrix(P[,-1])#
-P<- P[-1,]#
-S<- read.table(paste(m, "S.txt", sep=''), row.names = NULL)#
-S<- as.matrix(S[,-1])#
-S<- S[-1,]#
-theta<- read.table(paste(m, "theta.txt", sep=''), row.names = NULL)#
-theta<- as.matrix(theta[,-1])#
-theta<- theta[-1,]#
-#
-G<- dim(P)[1]	# number of total simulation effort G#
-#
-raw<- read.table("change-point-2.txt")#
-y<- raw[,1]#
-n<- length(y)	# sample size#
-#
-a<- 0.1*n/(m+1)-0.1#
-b<- 0.1#
-#
-# posterior mean estimates#
-P_star<- apply(P, 2, mean)#
-theta_star<- apply(theta, 2, mean)#
-#
-# function#
-p6<- function(t, k, theta, P, mass){	# equition (6)#
-	if(k == 0){#
-		output<- 0#
-	}#
-	if(k == 1){#
-		output<- P[k]*mass[t-1, k]#
-	}#
-	if(k > 1){#
-		output<- (1-P[k-1])*mass[t-1, k-1] + P[k]*mass[t-1, k]  #
-	}#
-	return(output)#
-}#
-#
-# posterior#
-theta_post<- array(NA, c(G, m+1))#
-S_post<- array(NA, c(G, n))#
-P_post<- array(NA, c(G, m))#
-P_update<- P_star#
-#
-for(i in 1:G){#
-	# update theta_post#
-	S_cur<- S[i,]#
-	count<- ftable(S_cur)-1#
-	for(j in 1:(m+1)){#
-		theta_post[i, j]<- pgamma(theta_star[j], m+1+sum(y[S_cur == j]), count[j]+2)#
-	}#
-	# update mass distribution#
-	mass<- array(0, c(n, m+1))	# mass distribution for S#
-	for(t in 1:n){#
-		if(t == 1){#
-			mass[1, 1]<- 1#
-		}#
-		else{#
-			for(k in 1:(m+1)){#
-				temp<- p6(t, k, theta_star, P_update, mass)*ppois(y[t], theta_star[k])+p6(t, k-1, theta_star, P_update, mass)*ppois(y[t], prod(theta_star[k-1]))#
-				mass[t, k]<- p6(t, k, theta_star, P_update, mass)*ppois(y[t], theta_star[k])/temp#
-			}#
-				#mass[t, 1]<- 1-sum(mass[t, -1])#
-				#mass[t,]<- mass[t,]/sum(mass[t,]) #
-			}#
-		}#
-	# update S_post#
-	S_post[i, n]<- m+1#
-	S_post[i, 1]<- 1#
-		for(t in (n-1):2){#
+	for(t in (n-1):2){#
 		if(S_post[i, t+1] == 1){#
 			S_post[i, t] = 1#
 		}#
@@ -1778,4 +2063,773 @@ for(i in 1:G){#
 		P_update[j]<- rbeta(1, a+count_post[j], b+1)#
 		P_post[i, j]<- pbeta(P_star[j], a+count_post[j], b+1)#
 	}#
-}
+}#
+#
+y_post<- array(0, n)#
+mass<- array(0, c(n, m+1))	# mass distribution for S#
+for(t in 1:n){#
+	if(t == 1){#
+		mass[1, 1]<- 1#
+		y_post[t]<- y_post[i]+ppois(y[t], theta_star[k])#
+	}#
+	else{#
+		for(k in 1:(m+1)){#
+			temp<- p6(t, k, theta_star, P_star, mass)*ppois(y[t], theta_star[k])+p6(t, k-1, theta_star, P_star, mass)*ppois(y[t], prod(theta_star[k-1]))#
+			mass[t, k]<- p6(t, k, theta_star, P_star, mass)*ppois(y[t], theta_star[k])/temp#
+		}#
+		mass[t,]<- mass[t,]/sum(mass[t,])#
+		for(k in 1:(m+1)){#
+			y_post[t] = y_post[i]+ppois(y[t], theta_star[k])*p6(t, k, theta_star, P_star, mass)#
+		}#
+	}#
+#
+}#
+#
+theta_post_den<- mean(apply(theta_post, 1, prod))#
+P_post_den<- mean(apply(P_post, 1, prod))#
+ln_theta_den<- sum(log(apply(as.array(theta_star), 1, pgamma, m+1, 1)))#
+ln_P_den<- sum(log(apply(as.array(P_star), 1, pbeta, a, b)))#
+ln_y_den<- sum(log(y_post))#
+#
+ln_bayes<- ln_y_den+ln_theta_den+ln_P_den - log(theta_post_den)-log(P_post_den)#
+write.table(ln_bayes, file = paste(m, "bayes.txt", sep = ''))
+theta_post_den
+P_post_den
+ln_theta_den
+ln_P_den
+ln_y_den
+y_post
+read mcmc results#
+P<- read.table(paste(m, "P.txt", sep=''), row.names = NULL)#
+P<- as.matrix(P[,-1])#
+P<- P[-1,]#
+S<- read.table(paste(m, "S.txt", sep=''), row.names = NULL)#
+S<- as.matrix(S[,-1])#
+S<- S[-1,]#
+theta<- read.table(paste(m, "theta.txt", sep=''), row.names = NULL)#
+theta<- as.matrix(theta[,-1])#
+theta<- theta[-1,]#
+#
+G<- dim(P)[1]	# number of total simulation effort G#
+#
+raw<- read.table("change-point-2.txt")#
+y<- raw[,1]#
+n<- length(y)	# sample size#
+#
+a<- 0.1*n/(m+1)-0.1#
+b<- 0.1#
+#
+# posterior mean estimates#
+P_star<- apply(P, 2, mean)#
+theta_star<- apply(theta, 2, mean)#
+#
+# function#
+p6<- function(t, k, theta, P, mass){	# equition (6)#
+	if(k == 0){#
+		output<- 0#
+	}#
+	if(k == 1){#
+		output<- P[k]*mass[t-1, k]#
+	}#
+	if(k > 1){#
+		output<- (1-P[k-1])*mass[t-1, k-1] + P[k]*mass[t-1, k]  #
+	}#
+	return(output)#
+}#
+#
+# posterior#
+theta_post<- array(NA, c(G, m+1))#
+S_post<- array(NA, c(G, n))#
+P_post<- array(NA, c(G, m))#
+P_update<- P_star#
+#
+for(i in 1:G){#
+	# update theta_post#
+	S_cur<- S[i,]#
+	count<- ftable(S_cur)-1#
+	for(j in 1:(m+1)){#
+		theta_post[i, j]<- pgamma(theta_star[j], m+1+sum(y[S_cur == j]), count[j]+2)#
+	}#
+	# update mass distribution#
+	mass<- array(0, c(n, m+1))	# mass distribution for S#
+	for(t in 1:n){#
+		if(t == 1){#
+			mass[1, 1]<- 1#
+		}#
+		else{#
+			for(k in 1:(m+1)){#
+				temp<- p6(t, k, theta_star, P_update, mass)*ppois(y[t], theta_star[k])+p6(t, k-1, theta_star, P_update, mass)*ppois(y[t], prod(theta_star[k-1]))#
+				mass[t, k]<- p6(t, k, theta_star, P_update, mass)*ppois(y[t], theta_star[k])/temp#
+			}#
+		}#
+	}#
+	# update S_post#
+	S_post[i, n]<- m+1#
+	S_post[i, 1]<- 1#
+	for(t in (n-1):2){#
+		if(S_post[i, t+1] == 1){#
+			S_post[i, t] = 1#
+		}#
+		else{#
+			prob<- c(mass[t, (S_post[i, t+1]-1)]*(1-P[i, S_post[i, t+1]-1]), mass[t, S_post[i, t+1]]*P[i, S_post[i, t+1]])#
+			S_post[i, t]<- sample((S_post[i, t+1]-1):S_post[i, t+1], 1, prob = prob)#
+		}#
+	}#
+	# update P_post#
+	count_post<- ftable(S_post[i,])-1#
+	for(j in 1:m){#
+		P_update[j]<- rbeta(1, a+count_post[j], b+1)#
+		P_post[i, j]<- pbeta(P_star[j], a+count_post[j], b+1)#
+	}#
+}#
+#
+y_post<- array(0, n)#
+mass<- array(0, c(n, m+1))	# mass distribution for S#
+for(t in 1:n){#
+	if(t == 1){#
+		mass[1, 1]<- 1#
+		y_post[t]<- y_post[t]+ppois(y[t], theta_star[k])#
+	}#
+	else{#
+		for(k in 1:(m+1)){#
+			temp<- p6(t, k, theta_star, P_star, mass)*ppois(y[t], theta_star[k])+p6(t, k-1, theta_star, P_star, mass)*ppois(y[t], prod(theta_star[k-1]))#
+			mass[t, k]<- p6(t, k, theta_star, P_star, mass)*ppois(y[t], theta_star[k])/temp#
+		}#
+		mass[t,]<- mass[t,]/sum(mass[t,])#
+		for(k in 1:(m+1)){#
+			y_post[t] = y_post[t]+ppois(y[t], theta_star[k])*p6(t, k, theta_star, P_star, mass)#
+		}#
+	}#
+#
+}#
+#
+theta_post_den<- mean(apply(theta_post, 1, prod))#
+P_post_den<- mean(apply(P_post, 1, prod))#
+ln_theta_den<- sum(log(apply(as.array(theta_star), 1, pgamma, m+1, 1)))#
+ln_P_den<- sum(log(apply(as.array(P_star), 1, pbeta, a, b)))#
+ln_y_den<- sum(log(y_post))#
+#
+ln_bayes<- ln_y_den+ln_theta_den+ln_P_den - log(theta_post_den)-log(P_post_den)#
+write.table(ln_bayes, file = paste(m, "bayes.txt", sep = ''))
+ln_bayes
+read mcmc results#
+P<- read.table(paste(m, "P.txt", sep=''), row.names = NULL)#
+P<- as.matrix(P[,-1])#
+P<- P[-1,]#
+S<- read.table(paste(m, "S.txt", sep=''), row.names = NULL)#
+S<- as.matrix(S[,-1])#
+S<- S[-1,]#
+theta<- read.table(paste(m, "theta.txt", sep=''), row.names = NULL)#
+theta<- as.matrix(theta[,-1])#
+theta<- theta[-1,]#
+#
+G<- dim(P)[1]	# number of total simulation effort G#
+#
+raw<- read.table("change-point-2.txt")#
+y<- raw[,1]#
+n<- length(y)	# sample size#
+#
+a<- 0.1*n/(m+1)-0.1#
+b<- 0.1#
+#
+# posterior mean estimates#
+P_star<- apply(P, 2, mean)#
+theta_star<- apply(theta, 2, mean)#
+#
+# function#
+p6<- function(t, k, theta, P, mass){	# equition (6)#
+	if(k == 0){#
+		output<- 0#
+	}#
+	if(k == 1){#
+		output<- P[k]*mass[t-1, k]#
+	}#
+	if(k > 1){#
+		output<- (1-P[k-1])*mass[t-1, k-1] + P[k]*mass[t-1, k]  #
+	}#
+	return(output)#
+}#
+#
+# posterior#
+theta_post<- array(NA, c(G, m+1))#
+S_post<- array(NA, c(G, n))#
+P_post<- array(NA, c(G, m))#
+P_update<- P_star#
+#
+for(i in 1:G){#
+	# update theta_post#
+	S_cur<- S[i,]#
+	count<- ftable(S_cur)-1#
+	for(j in 1:(m+1)){#
+		theta_post[i, j]<- pgamma(theta_star[j], m+1+sum(y[S_cur == j]), count[j]+2)#
+	}#
+	# update mass distribution#
+	mass<- array(0, c(n, m+1))	# mass distribution for S#
+	for(t in 1:n){#
+		if(t == 1){#
+			mass[1, 1]<- 1#
+		}#
+		else{#
+			for(k in 1:(m+1)){#
+				temp<- p6(t, k, theta_star, P_update, mass)*ppois(y[t], theta_star[k])+p6(t, k-1, theta_star, P_update, mass)*ppois(y[t], prod(theta_star[k-1]))#
+				mass[t, k]<- p6(t, k, theta_star, P_update, mass)*ppois(y[t], theta_star[k])/temp#
+			}#
+		}#
+	}#
+	# update S_post#
+	S_post[i, n]<- m+1#
+	S_post[i, 1]<- 1#
+	for(t in (n-1):2){#
+		if(S_post[i, t+1] == 1){#
+			S_post[i, t] = 1#
+		}#
+		else{#
+			prob<- c(mass[t, (S_post[i, t+1]-1)]*(1-P[i, S_post[i, t+1]-1]), mass[t, S_post[i, t+1]]*P[i, S_post[i, t+1]])#
+			S_post[i, t]<- sample((S_post[i, t+1]-1):S_post[i, t+1], 1, prob = prob)#
+		}#
+	}#
+	# update P_post#
+	count_post<- ftable(S_post[i,])-1#
+	for(j in 1:m){#
+		P_update[j]<- rbeta(1, a+count_post[j], b+1)#
+		P_post[i, j]<- pbeta(P_star[j], a+count_post[j], b+1)#
+	}#
+}#
+#
+y_post<- array(0, n)#
+mass<- array(0, c(n, m+1))	# mass distribution for S#
+S_plot<- array(0, c(n, m+1))#
+for(t in 1:n){#
+	if(t == 1){#
+		mass[1, 1]<- 1#
+		y_post[t]<- y_post[t]+ppois(y[t], theta_star[k])#
+		S_plot[t, 1]<- 1#
+	}#
+	else{#
+		for(k in 1:(m+1)){#
+			temp<- p6(t, k, theta_star, P_star, mass)*ppois(y[t], theta_star[k])+p6(t, k-1, theta_star, P_star, mass)*ppois(y[t], prod(theta_star[k-1]))#
+			mass[t, k]<- p6(t, k, theta_star, P_star, mass)*ppois(y[t], theta_star[k])/temp#
+		}#
+		mass[t,]<- mass[t,]/sum(mass[t,])#
+		for(k in 1:(m+1)){#
+			y_post[t] = y_post[t]+ppois(y[t], theta_star[k])*p6(t, k, theta_star, P_star, mass)#
+			S_plot[t, k] = p6(t, k, theta_star, P_star, mass)#
+		}#
+	}#
+#
+}#
+#
+theta_post_den<- mean(apply(theta_post, 1, prod))#
+P_post_den<- mean(apply(P_post, 1, prod))#
+ln_theta_den<- sum(log(apply(as.array(theta_star), 1, pgamma, m+1, 1)))#
+ln_P_den<- sum(log(apply(as.array(P_star), 1, pbeta, a, b)))#
+ln_y_den<- sum(log(y_post))#
+#
+ln_bayes<- ln_y_den+ln_theta_den+ln_P_den - log(theta_post_den)-log(P_post_den)#
+write.table(ln_bayes, file = paste(m, "bayes.txt", sep = ''))
+m
+read mcmc results#
+P<- read.table(paste(m, "P.txt", sep=''), row.names = NULL)#
+P<- as.matrix(P[,-1])#
+P<- P[-1,]#
+S<- read.table(paste(m, "S.txt", sep=''), row.names = NULL)#
+S<- as.matrix(S[,-1])#
+S<- S[-1,]#
+theta<- read.table(paste(m, "theta.txt", sep=''), row.names = NULL)#
+theta<- as.matrix(theta[,-1])#
+theta<- theta[-1,]#
+#
+G<- dim(P)[1]	# number of total simulation effort G#
+#
+raw<- read.table("change-point-2.txt")#
+y<- raw[,1]#
+n<- length(y)	# sample size#
+#
+a<- 0.1*n/(m+1)-0.1#
+b<- 0.1#
+#
+# posterior mean estimates#
+P_star<- apply(P, 2, mean)#
+theta_star<- apply(theta, 2, mean)#
+#
+# function#
+p6<- function(t, k, theta, P, mass){	# equition (6)#
+	if(k == 0){#
+		output<- 0#
+	}#
+	if(k == 1){#
+		output<- P[k]*mass[t-1, k]#
+	}#
+	if(k > 1){#
+		output<- (1-P[k-1])*mass[t-1, k-1] + P[k]*mass[t-1, k]  #
+	}#
+	return(output)#
+}#
+#
+# posterior#
+theta_post<- array(NA, c(G, m+1))#
+S_post<- array(NA, c(G, n))#
+P_post<- array(NA, c(G, m))#
+P_update<- P_star#
+#
+for(i in 1:G){#
+	# update theta_post#
+	S_cur<- S[i,]#
+	count<- ftable(S_cur)-1#
+	for(j in 1:(m+1)){#
+		theta_post[i, j]<- pgamma(theta_star[j], m+1+sum(y[S_cur == j]), count[j]+2)#
+	}#
+	# update mass distribution#
+	mass<- array(0, c(n, m+1))	# mass distribution for S#
+	for(t in 1:n){#
+		if(t == 1){#
+			mass[1, 1]<- 1#
+		}#
+		else{#
+			for(k in 1:(m+1)){#
+				temp<- p6(t, k, theta_star, P_update, mass)*ppois(y[t], theta_star[k])+p6(t, k-1, theta_star, P_update, mass)*ppois(y[t], prod(theta_star[k-1]))#
+				mass[t, k]<- p6(t, k, theta_star, P_update, mass)*ppois(y[t], theta_star[k])/temp#
+			}#
+		}#
+	}#
+	# update S_post#
+	S_post[i, n]<- m+1#
+	S_post[i, 1]<- 1#
+	for(t in (n-1):2){#
+		if(S_post[i, t+1] == 1){#
+			S_post[i, t] = 1#
+		}#
+		else{#
+			prob<- c(mass[t, (S_post[i, t+1]-1)]*(1-P[i, S_post[i, t+1]-1]), mass[t, S_post[i, t+1]]*P[i, S_post[i, t+1]])#
+			S_post[i, t]<- sample((S_post[i, t+1]-1):S_post[i, t+1], 1, prob = prob)#
+		}#
+	}#
+	# update P_post#
+	count_post<- ftable(S_post[i,])-1#
+	for(j in 1:m){#
+		P_update[j]<- rbeta(1, a+count_post[j], b+1)#
+		P_post[i, j]<- pbeta(P_star[j], a+count_post[j], b+1)#
+	}#
+}#
+#
+y_post<- array(0, n)#
+mass<- array(0, c(n, m+1))	# mass distribution for S#
+S_plot<- array(0, c(n, m+1))#
+for(t in 1:n){#
+	if(t == 1){#
+		mass[1, 1]<- 1#
+		y_post[t]<- y_post[t]+ppois(y[t], theta_star[k])#
+		S_plot[t, 1]<- 1#
+	}#
+	else{#
+		for(k in 1:(m+1)){#
+			temp<- p6(t, k, theta_star, P_star, mass)*ppois(y[t], theta_star[k])+p6(t, k-1, theta_star, P_star, mass)*ppois(y[t], prod(theta_star[k-1]))#
+			mass[t, k]<- p6(t, k, theta_star, P_star, mass)*ppois(y[t], theta_star[k])/temp#
+		}#
+		mass[t,]<- mass[t,]/sum(mass[t,])#
+		for(k in 1:(m+1)){#
+			y_post[t] = y_post[t]+ppois(y[t], theta_star[k])*p6(t, k, theta_star, P_star, mass)#
+			S_plot[t, k] = p6(t, k, theta_star, P_star, mass)#
+		}#
+	}#
+#
+}#
+#
+theta_post_den<- mean(apply(theta_post, 1, prod))#
+P_post_den<- mean(apply(P_post, 1, prod))#
+ln_theta_den<- sum(log(apply(as.array(theta_star), 1, pgamma, m+1, 1)))#
+ln_P_den<- sum(log(apply(as.array(P_star), 1, pbeta, a, b)))#
+ln_y_den<- sum(log(y_post))#
+#
+ln_bayes<- ln_y_den+ln_theta_den+ln_P_den - log(theta_post_den)-log(P_post_den)#
+write.table(ln_bayes, file = paste(m, "bayes.txt", sep = ''))
+ln_bayes
+S_plot
+plot(S_plot)
+plot(S_plot[,1])
+lines(S_plot[,2])
+line(S_plot[,2])
+plot(S_plot[,2])
+apply(S_plot, 2, sum)
+apply(S_plot, 1, sum)
+plot(S_plot[,1], ylim = c(0, 1))
+apply(S, 2, mean)
+head(theta)
+theta[i,]
+m
+read mcmc results#
+P<- read.table(paste(m, "P.txt", sep=''), row.names = NULL)#
+P<- as.matrix(P[,-1])#
+P<- P[-1,]#
+S<- read.table(paste(m, "S.txt", sep=''), row.names = NULL)#
+S<- as.matrix(S[,-1])#
+S<- S[-1,]#
+theta<- read.table(paste(m, "theta.txt", sep=''), row.names = NULL)#
+theta<- as.matrix(theta[,-1])#
+theta<- theta[-1,]#
+#
+G<- dim(P)[1]	# number of total simulation effort G#
+#
+raw<- read.table("change-point-2.txt")#
+y<- raw[,1]#
+n<- length(y)	# sample size#
+#
+a<- 0.1*n/(m+1)-0.1#
+b<- 0.1#
+#
+# posterior mean estimates#
+P_star<- apply(P, 2, mean)#
+theta_star<- apply(theta, 2, mean)#
+#
+# function#
+p6<- function(t, k, theta, P, mass){	# equition (6)#
+	if(k == 0){#
+		output<- 0#
+	}#
+	if(k == 1){#
+		output<- P[k]*mass[t-1, k]#
+	}#
+	if(k > 1){#
+		output<- (1-P[k-1])*mass[t-1, k-1] + P[k]*mass[t-1, k]  #
+	}#
+	return(output)#
+}#
+#
+# posterior#
+theta_post<- array(NA, c(G, m+1))#
+S_post<- array(NA, c(G, n))#
+P_post<- array(NA, c(G, m))#
+P_update<- P_star#
+S_plot<- array(0, c(G, n, m+1))#
+#
+for(i in 1:G){#
+	# update theta_post#
+	S_cur<- S[i,]#
+	count<- ftable(S_cur)-1#
+	for(j in 1:(m+1)){#
+		theta_post[i, j]<- pgamma(theta_star[j], m+1+sum(y[S_cur == j]), count[j]+2)#
+	}#
+	# update mass distribution#
+	mass<- array(0, c(n, m+1))	# mass distribution for S#
+	mass_plot<- array(0, c(n, m+1))#
+	for(t in 1:n){#
+		if(t == 1){#
+			mass[1, 1]<- 1#
+			mass_plot<- 1#
+			S_plot[i, t, 1]<- 1#
+		}#
+		else{#
+			for(k in 1:(m+1)){#
+				temp<- p6(t, k, theta_star, P_update, mass)*ppois(y[t], theta_star[k])+p6(t, k-1, theta_star, P_update, mass)*ppois(y[t], prod(theta_star[k-1]))#
+				mass[t, k]<- p6(t, k, theta_star, P_update, mass)*ppois(y[t], theta_star[k])/temp#
+				temp_plot<- p6(t, k, theta[i,], P[i,], mass_plot)*ppois(y[t], theta[i,k])+p6(t, k-1, theta[i,], P[i,], mass_plot)*ppois(y[t], prod(theta[i,k-1]))#
+				mass_plot[t, k]<- p6(t, k, theta[i,], P[i,], mass_plot)*ppois(y[t], theta[i,k])/temp_plot#
+				S_plot[i, t, k]<- p6(t, k, theta[i,], P[i], mass_plot)#
+			}#
+		}#
+	}#
+	# update S_post#
+	S_post[i, n]<- m+1#
+	S_post[i, 1]<- 1#
+	for(t in (n-1):2){#
+		if(S_post[i, t+1] == 1){#
+			S_post[i, t] = 1#
+		}#
+		else{#
+			prob<- c(mass[t, (S_post[i, t+1]-1)]*(1-P[i, S_post[i, t+1]-1]), mass[t, S_post[i, t+1]]*P[i, S_post[i, t+1]])#
+			S_post[i, t]<- sample((S_post[i, t+1]-1):S_post[i, t+1], 1, prob = prob)#
+		}#
+	}#
+	# update P_post#
+	count_post<- ftable(S_post[i,])-1#
+	for(j in 1:m){#
+		P_update[j]<- rbeta(1, a+count_post[j], b+1)#
+		P_post[i, j]<- pbeta(P_star[j], a+count_post[j], b+1)#
+	}#
+}#
+#
+y_post<- array(0, n)#
+mass<- array(0, c(n, m+1))	# mass distribution for S#
+for(t in 1:n){#
+	if(t == 1){#
+		mass[1, 1]<- 1#
+		y_post[t]<- y_post[t]+ppois(y[t], theta_star[k])#
+	}#
+	else{#
+		for(k in 1:(m+1)){#
+			temp<- p6(t, k, theta_star, P_star, mass)*ppois(y[t], theta_star[k])+p6(t, k-1, theta_star, P_star, mass)*ppois(y[t], prod(theta_star[k-1]))#
+			mass[t, k]<- p6(t, k, theta_star, P_star, mass)*ppois(y[t], theta_star[k])/temp#
+		}#
+		mass[t,]<- mass[t,]/sum(mass[t,])#
+		for(k in 1:(m+1)){#
+			y_post[t] = y_post[t]+ppois(y[t], theta_star[k])*p6(t, k, theta_star, P_star, mass)#
+		}#
+	}#
+#
+}#
+#
+theta_post_den<- mean(apply(theta_post, 1, prod))#
+P_post_den<- mean(apply(P_post, 1, prod))#
+ln_theta_den<- sum(log(apply(as.array(theta_star), 1, pgamma, m+1, 1)))#
+ln_P_den<- sum(log(apply(as.array(P_star), 1, pbeta, a, b)))#
+ln_y_den<- sum(log(y_post))#
+#
+ln_bayes<- ln_y_den+ln_theta_den+ln_P_den - log(theta_post_den)-log(P_post_den)#
+write.table(ln_bayes, file = paste(m, "bayes.txt", sep = ''))
+ln_bayes
+read mcmc results#
+P<- read.table(paste(m, "P.txt", sep=''), row.names = NULL)#
+P<- as.matrix(P[,-1])#
+P<- P[-1,]#
+S<- read.table(paste(m, "S.txt", sep=''), row.names = NULL)#
+S<- as.matrix(S[,-1])#
+S<- S[-1,]#
+theta<- read.table(paste(m, "theta.txt", sep=''), row.names = NULL)#
+theta<- as.matrix(theta[,-1])#
+theta<- theta[-1,]#
+#
+G<- dim(P)[1]	# number of total simulation effort G#
+#
+raw<- read.table("change-point-2.txt")#
+y<- raw[,1]#
+n<- length(y)	# sample size#
+#
+a<- 0.1*n/(m+1)-0.1#
+b<- 0.1#
+#
+# posterior mean estimates#
+P_star<- apply(P, 2, mean)#
+theta_star<- apply(theta, 2, mean)#
+#
+# function#
+p6<- function(t, k, theta, P, mass){	# equition (6)#
+	if(k == 0){#
+		output<- 0#
+	}#
+	if(k == 1){#
+		output<- P[k]*mass[t-1, k]#
+	}#
+	if(k > 1){#
+		output<- (1-P[k-1])*mass[t-1, k-1] + P[k]*mass[t-1, k]  #
+	}#
+	return(output)#
+}#
+#
+# posterior#
+theta_post<- array(NA, c(G, m+1))#
+S_post<- array(NA, c(G, n))#
+P_post<- array(NA, c(G, m))#
+P_update<- P_star#
+S_plot<- array(0, c(G, n, m+1))#
+#
+for(i in 1:G){#
+	# update theta_post#
+	S_cur<- S[i,]#
+	count<- ftable(S_cur)-1#
+	for(j in 1:(m+1)){#
+		theta_post[i, j]<- pgamma(theta_star[j], m+1+sum(y[S_cur == j]), count[j]+2)#
+	}#
+	# update mass distribution#
+	mass<- array(0, c(n, m+1))	# mass distribution for S#
+	mass_plot<- array(0, c(n, m+1))#
+	for(t in 1:n){#
+		if(t == 1){#
+			mass[1, 1]<- 1#
+			mass_plot[1, 1]<- 1#
+			S_plot[i, t, 1]<- 1#
+		}#
+		else{#
+			for(k in 1:(m+1)){#
+				temp<- p6(t, k, theta_star, P_update, mass)*ppois(y[t], theta_star[k])+p6(t, k-1, theta_star, P_update, mass)*ppois(y[t], prod(theta_star[k-1]))#
+				mass[t, k]<- p6(t, k, theta_star, P_update, mass)*ppois(y[t], theta_star[k])/temp#
+				temp_plot<- p6(t, k, theta[i,], P[i,], mass_plot)*ppois(y[t], theta[i,k])+p6(t, k-1, theta[i,], P[i,], mass_plot)*ppois(y[t], prod(theta[i,k-1]))#
+				mass_plot[t, k]<- p6(t, k, theta[i,], P[i,], mass_plot)*ppois(y[t], theta[i,k])/temp_plot#
+				S_plot[i, t, k]<- p6(t, k, theta[i,], P[i], mass_plot)#
+			}#
+		}#
+	}#
+	# update S_post#
+	S_post[i, n]<- m+1#
+	S_post[i, 1]<- 1#
+	for(t in (n-1):2){#
+		if(S_post[i, t+1] == 1){#
+			S_post[i, t] = 1#
+		}#
+		else{#
+			prob<- c(mass[t, (S_post[i, t+1]-1)]*(1-P[i, S_post[i, t+1]-1]), mass[t, S_post[i, t+1]]*P[i, S_post[i, t+1]])#
+			S_post[i, t]<- sample((S_post[i, t+1]-1):S_post[i, t+1], 1, prob = prob)#
+		}#
+	}#
+	# update P_post#
+	count_post<- ftable(S_post[i,])-1#
+	for(j in 1:m){#
+		P_update[j]<- rbeta(1, a+count_post[j], b+1)#
+		P_post[i, j]<- pbeta(P_star[j], a+count_post[j], b+1)#
+	}#
+}#
+#
+y_post<- array(0, n)#
+mass<- array(0, c(n, m+1))	# mass distribution for S#
+for(t in 1:n){#
+	if(t == 1){#
+		mass[1, 1]<- 1#
+		y_post[t]<- y_post[t]+ppois(y[t], theta_star[k])#
+	}#
+	else{#
+		for(k in 1:(m+1)){#
+			temp<- p6(t, k, theta_star, P_star, mass)*ppois(y[t], theta_star[k])+p6(t, k-1, theta_star, P_star, mass)*ppois(y[t], prod(theta_star[k-1]))#
+			mass[t, k]<- p6(t, k, theta_star, P_star, mass)*ppois(y[t], theta_star[k])/temp#
+		}#
+		mass[t,]<- mass[t,]/sum(mass[t,])#
+		for(k in 1:(m+1)){#
+			y_post[t] = y_post[t]+ppois(y[t], theta_star[k])*p6(t, k, theta_star, P_star, mass)#
+		}#
+	}#
+#
+}#
+#
+theta_post_den<- mean(apply(theta_post, 1, prod))#
+P_post_den<- mean(apply(P_post, 1, prod))#
+ln_theta_den<- sum(log(apply(as.array(theta_star), 1, pgamma, m+1, 1)))#
+ln_P_den<- sum(log(apply(as.array(P_star), 1, pbeta, a, b)))#
+ln_y_den<- sum(log(y_post))#
+#
+ln_bayes<- ln_y_den+ln_theta_den+ln_P_den - log(theta_post_den)-log(P_post_den)#
+write.table(ln_bayes, file = paste(m, "bayes.txt", sep = ''))
+head(S_plot)
+S
+S_plot[1,,]
+S_plot[2,,]
+P[1]
+P[1,]
+read mcmc results#
+P<- read.table(paste(m, "P.txt", sep=''), row.names = NULL)#
+P<- as.matrix(P[,-1])#
+P<- P[-1,]#
+S<- read.table(paste(m, "S.txt", sep=''), row.names = NULL)#
+S<- as.matrix(S[,-1])#
+S<- S[-1,]#
+theta<- read.table(paste(m, "theta.txt", sep=''), row.names = NULL)#
+theta<- as.matrix(theta[,-1])#
+theta<- theta[-1,]#
+#
+G<- dim(P)[1]	# number of total simulation effort G#
+#
+raw<- read.table("change-point-2.txt")#
+y<- raw[,1]#
+n<- length(y)	# sample size#
+#
+a<- 0.1*n/(m+1)-0.1#
+b<- 0.1#
+#
+# posterior mean estimates#
+P_star<- apply(P, 2, mean)#
+theta_star<- apply(theta, 2, mean)#
+#
+# function#
+p6<- function(t, k, theta, P, mass){	# equition (6)#
+	if(k == 0){#
+		output<- 0#
+	}#
+	if(k == 1){#
+		output<- P[k]*mass[t-1, k]#
+	}#
+	if(k > 1){#
+		output<- (1-P[k-1])*mass[t-1, k-1] + P[k]*mass[t-1, k]  #
+	}#
+	return(output)#
+}#
+#
+# posterior#
+theta_post<- array(NA, c(G, m+1))#
+S_post<- array(NA, c(G, n))#
+P_post<- array(NA, c(G, m))#
+P_update<- P_star#
+S_plot<- array(0, c(G, n, m+1))#
+#
+for(i in 1:G){#
+	# update theta_post#
+	S_cur<- S[i,]#
+	count<- ftable(S_cur)-1#
+	for(j in 1:(m+1)){#
+		theta_post[i, j]<- pgamma(theta_star[j], m+1+sum(y[S_cur == j]), count[j]+2)#
+	}#
+	# update mass distribution#
+	mass<- array(0, c(n, m+1))	# mass distribution for S#
+	mass_plot<- array(0, c(n, m+1))#
+	for(t in 1:n){#
+		if(t == 1){#
+			mass[1, 1]<- 1#
+			mass_plot[1, 1]<- 1#
+			S_plot[i, t, 1]<- 1#
+		}#
+		else{#
+			for(k in 1:(m+1)){#
+				temp<- p6(t, k, theta_star, P_update, mass)*ppois(y[t], theta_star[k])+p6(t, k-1, theta_star, P_update, mass)*ppois(y[t], prod(theta_star[k-1]))#
+				mass[t, k]<- p6(t, k, theta_star, P_update, mass)*ppois(y[t], theta_star[k])/temp#
+				temp_plot<- p6(t, k, theta[i,], P[i,], mass_plot)*ppois(y[t], theta[i,k])+p6(t, k-1, theta[i,], P[i,], mass_plot)*ppois(y[t], prod(theta[i,k-1]))#
+				mass_plot[t, k]<- p6(t, k, theta[i,], P[i,], mass_plot)*ppois(y[t], theta[i,k])/temp_plot#
+				S_plot[i, t, k]<- p6(t, k, theta[i,], P[i,], mass_plot)#
+			}#
+		}#
+	}#
+	# update S_post#
+	S_post[i, n]<- m+1#
+	S_post[i, 1]<- 1#
+	for(t in (n-1):2){#
+		if(S_post[i, t+1] == 1){#
+			S_post[i, t] = 1#
+		}#
+		else{#
+			prob<- c(mass[t, (S_post[i, t+1]-1)]*(1-P[i, S_post[i, t+1]-1]), mass[t, S_post[i, t+1]]*P[i, S_post[i, t+1]])#
+			S_post[i, t]<- sample((S_post[i, t+1]-1):S_post[i, t+1], 1, prob = prob)#
+		}#
+	}#
+	# update P_post#
+	count_post<- ftable(S_post[i,])-1#
+	for(j in 1:m){#
+		P_update[j]<- rbeta(1, a+count_post[j], b+1)#
+		P_post[i, j]<- pbeta(P_star[j], a+count_post[j], b+1)#
+	}#
+}#
+#
+y_post<- array(0, n)#
+mass<- array(0, c(n, m+1))	# mass distribution for S#
+for(t in 1:n){#
+	if(t == 1){#
+		mass[1, 1]<- 1#
+		y_post[t]<- y_post[t]+ppois(y[t], theta_star[k])#
+	}#
+	else{#
+		for(k in 1:(m+1)){#
+			temp<- p6(t, k, theta_star, P_star, mass)*ppois(y[t], theta_star[k])+p6(t, k-1, theta_star, P_star, mass)*ppois(y[t], prod(theta_star[k-1]))#
+			mass[t, k]<- p6(t, k, theta_star, P_star, mass)*ppois(y[t], theta_star[k])/temp#
+		}#
+		mass[t,]<- mass[t,]/sum(mass[t,])#
+		for(k in 1:(m+1)){#
+			y_post[t] = y_post[t]+ppois(y[t], theta_star[k])*p6(t, k, theta_star, P_star, mass)#
+		}#
+	}#
+#
+}#
+#
+theta_post_den<- mean(apply(theta_post, 1, prod))#
+P_post_den<- mean(apply(P_post, 1, prod))#
+ln_theta_den<- sum(log(apply(as.array(theta_star), 1, pgamma, m+1, 1)))#
+ln_P_den<- sum(log(apply(as.array(P_star), 1, pbeta, a, b)))#
+ln_y_den<- sum(log(y_post))#
+#
+ln_bayes<- ln_y_den+ln_theta_den+ln_P_den - log(theta_post_den)-log(P_post_den)#
+write.table(ln_bayes, file = paste(m, "bayes.txt", sep = ''))
+S_plot[1,,]
+S_plot[2,,]
+S_plot[10000,,]
+S_plot[5000,,]
+apply(S_plot,1,mean)
+apply(S_plot,3,mean)
+apply(S_plot,c(1,2),mean)
+apply(S_plot,2,mean)
+apply(S_plot,1,mean)
+?apply
+apply(S_plot,c(2,3),mean)
+S_plot[1,,]
