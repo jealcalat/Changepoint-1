@@ -4,7 +4,7 @@
 n1<- 50
 n2<- 50
 lambda1<- 2
-lambda2<- 5
+lambda2<- 10
 
 x1<- rpois(n1, lambda1)
 x2<- rpois(n2, lambda2)
