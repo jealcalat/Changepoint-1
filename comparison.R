@@ -95,7 +95,7 @@ mass<- array(0, c(n, m+1))	# mass distribution for S
 for(t in 1:n){
 	if(t == 1){
 		mass[1, 1]<- 1
-		y_post[t]<- y_post[i]+ppois(y[t], theta_star[k])
+		y_post[t]<- y_post[t]+ppois(y[t], theta_star[k])
 	}
 	else{
 		for(k in 1:(m+1)){
@@ -104,7 +104,7 @@ for(t in 1:n){
 		}
 		mass[t,]<- mass[t,]/sum(mass[t,])
 		for(k in 1:(m+1)){
-			y_post[t] = y_post[i]+ppois(y[t], theta_star[k])*p6(t, k, theta_star, P_star, mass)
+			y_post[t] = y_post[t]+ppois(y[t], theta_star[k])*p6(t, k, theta_star, P_star, mass)
 		}
 	}
 
