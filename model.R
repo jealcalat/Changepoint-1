@@ -125,7 +125,7 @@ while(1){
 		if(prod(cond)){
 			break
 		}
-
+	}
 }
 
 	
