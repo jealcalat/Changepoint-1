@@ -21,7 +21,7 @@ m<- as.numeric(args[1])
 
 
 ## input y ##
-raw<- read.table("change-point-", m, ".txt", sep='')
+raw<- read.table("change-point-num.txt", sep='')
 y<- raw[,1]
 n<- length(y)	# sample size
 
