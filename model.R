@@ -217,7 +217,7 @@ ln_theta_den<- sum(log(apply(as.array(theta_star), 1, pgamma, m+1, 1)))
 ln_P_den<- sum(log(apply(as.array(P_star), 1, pbeta, a, b)))
 
 # bayes factor
-ln_bayes<- ln_y_den+ln_theta_den+ln_P_den - ln_theta_post_den-ln_P_post_den
+ln_bayes<- ln_y_like+ln_theta_den+ln_P_den - ln_theta_post_den-ln_P_post_den
 write.table(ln_bayes, file = paste(m, "bayes.txt", sep = ''))
 
 # plots
