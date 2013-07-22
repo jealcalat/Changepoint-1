@@ -8,7 +8,7 @@
 ##		m:	number of change points								##
 ##		y:	original dataset									##
 ##	output files:												##
-##		P.txt, S.txt, theta.txt, cond.txt						##
+##		P.txt, S.txt, theta.txt, cond.txt, bayes.txt, Rplot.pdf	##
 ##################################################################
 
 
@@ -223,7 +223,18 @@ write.table(ln_bayes, file = paste(m, "bayes.txt", sep = ''))
 
 # plots
 S_plots<- apply(S_plot, c(2,3), mean)
-write.table(S_plots, file = paste(m, "Splots.txt", sep = ''))
+x<- seq(1, n, 1)
+par(mfrow = c(m+1, 2))	# split plot
+for(k in 1:m){
+	hist(time[,k], main = paste(k, "th change-point", sep=''), xlab = "Time")
+}
+for(k in 1:(m+1)){
+	plot(density(theta[, k]), main = paste("lambda", k))
+}
+plot(x, S_plots[,1], "l", ylim = c(0, 1), xlab = "Time", ylab = "Pr(S|Y)", main = "Prob for change points")
+for(k in 2:(m+1)){
+	lines(x, S_plots[,k], lty = 2)
+}
 
 
 
