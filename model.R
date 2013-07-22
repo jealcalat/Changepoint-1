@@ -52,7 +52,7 @@ P<- array(0.5, c(1, m+1))
 P[1, m+1]<- 1
 
 # latent variable S
-S<- array(1, c(1, n))
+S<- array(m+1, c(1, n))
 for(t in 1:(m+1)){
 	S[t]<- t
 }
