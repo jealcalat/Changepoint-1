@@ -231,6 +231,9 @@ write.table(ln_bayes, file = paste(m, "bayes.txt", sep = ''))
 # plots
 S_plots<- apply(S_plot, c(2,3), mean)
 x<- seq(1, n, 1)
+
+# device
+pdf(file = paste(m, "Rplot.pdf", sep=''))
 par(mfrow = c(m+1, 2))	# split plot
 for(k in 1:m){
 	hist(time[,k], main = paste(k, "th change-point", sep=''), xlab = "Time")
@@ -242,6 +245,7 @@ plot(x, S_plots[,1], "l", ylim = c(0, 1), xlab = "Time", ylab = "Pr(S|Y)", main 
 for(k in 2:(m+1)){
 	lines(x, S_plots[,k], lty = 2)
 }
+dev.off()
 
 
 
