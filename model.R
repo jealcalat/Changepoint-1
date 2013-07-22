@@ -53,7 +53,9 @@ P[1, m+1]<- 1
 
 # latent variable S
 S<- array(1, c(1, n))
-S[1, n]<- m+1
+for(t in 1:(m+1)){
+	S[t]<- t
+}
 
 # model parameters theta
 theta<- array(n/(m+1), c(1, m+1))
@@ -152,6 +154,7 @@ for(t in 2:n){
 	}
 }
 ln_y_like<- sum(log(y_like))	# likelihood function
+write.table(ln_y_like, file = paste(m, "ln_y_like.txt", sep = ''))
 
 #marginal likelihood
 time<- array(NA, c(G, m))	# change-points
@@ -213,9 +216,13 @@ for(i in 1:G){
 }
 
 ln_theta_post_den<- log(mean(apply(theta_post, 1, prod)))
+write.table(ln_theta_post_den, file = paste(m, "ln_theta_post_den.txt", sep = ''))
 ln_P_post_den<- log(mean(apply(P_post, 1, prod)))
+write.table(ln_P_post_den, file = paste(m, "ln_P_post_den.txt", sep = ''))
 ln_theta_den<- sum(log(apply(as.array(theta_star), 1, pgamma, m+1, 1)))
+write.table(ln_theta_den, file = paste(m, "ln_theta_den.txt", sep = ''))
 ln_P_den<- sum(log(apply(as.array(P_star), 1, pbeta, a, b)))
+write.table(ln_P_den, file = paste(m, "ln_P_den.txt", sep = ''))
 
 # bayes factor
 ln_bayes<- ln_y_like+ln_theta_den+ln_P_den - ln_theta_post_den-ln_P_post_den
