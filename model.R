@@ -35,7 +35,7 @@ eq6<- function(t, k, P, mass){
 	else if(k == 1){
 		output<- P[1]*mass[t-1, 1]
 	}
-	else{
+	else if(k > 1){
 		output<- (1-P[k-1])*mass[t-1, k-1] + P[k]*mass[t-1, k]
 	}
 	return(output)
@@ -78,7 +78,12 @@ while(1){
 	for(t in 2:n){
 		mass[t, 1]<- 1	# if k == 1 then k-1 == 0
 		for(k in 2:(m+1)){
+			if(mass[t, k-1] == 0){
+				mass[t, k] = 0
+			}
+			else{
 			mass[t, k]<- 1/(1+eq6(t, k-1, P_cur, mass)*ppois(y[t], theta_cur[k-1])/(eq6(t, k, P_cur, mass)*ppois(y[t], theta_cur[k])))
+			}
 		}
 		mass[t,]<- mass[t,]/sum(mass[t,])
 	}
@@ -146,7 +151,12 @@ y_like[1]<- ppois(y[1], theta_star[1])
 for(t in 2:n){
 	mass[t, 1]<- 1	# if k == 1 then k-1 == 0
 	for(k in 2:(m+1)){
+		if(mass[t, k-1] == 0){
+				mass[t, k] = 0
+		}
+		else{
 		mass[t, k]<- 1/(1+eq6(t, k-1, P_star, mass)*ppois(y[t], theta_star[k-1])/(eq6(t, k, P_star, mass)*ppois(y[t], theta_star[k])))
+		}
 	}
 	mass[t,]<- mass[t,]/sum(mass[t,])
 	for(k in 1:(m+1)){
@@ -178,7 +188,12 @@ for(i in 1:G){
 	for(t in 2:n){
 		mass[t, 1]<- 1	# if k == 1 then k-1 == 0
 		for(k in 2:(m+1)){
+			if(mass[t, k-1] == 0){
+				mass[t, k] = 0
+			}
+			else{
 			mass[t, k]<- 1/(1+eq6(t, k-1, P_update, mass)*ppois(y[t], theta_star[k-1])/(eq6(t, k, P_update, mass)*ppois(y[t], theta_star[k])))
+			}
 		}
 		mass[t,]<- mass[t,]/sum(mass[t,])
 	}
@@ -203,7 +218,12 @@ for(i in 1:G){
 	for(t in 2:n){
 		mass[t, 1]<- 1	# if k == 1 then k-1 == 0
 		for(k in 2:(m+1)){
+			if(mass[t, k-1] == 0){
+				mass[t, k] = 0
+			}
+			else{
 			mass[t, k]<- 1/(1+eq6(t, k-1, P[i,], mass)*ppois(y[t], theta[i, k-1])/(eq6(t, k, P[i,], mass)*ppois(y[t], theta[i, k])))
+			}
 		}
 		mass[t,]<- mass[t,]/sum(mass[t,])
 	}
