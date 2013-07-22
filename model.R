@@ -204,7 +204,8 @@ for(i in 1:G){
 		}
 		mass[t,]<- mass[t,]/sum(mass[t,])
 	}
-	for(t in 1:n){
+	S_plot[i, 1, 1]<- 1
+	for(t in 2:n){
 		for(k in 1:(m+1)){
 			S_plot[i, t, k]<- eq6(t, k, P[i,], mass)
 		}
