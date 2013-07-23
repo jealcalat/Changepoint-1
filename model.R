@@ -21,7 +21,7 @@ m<- as.numeric(args[1])
 
 
 ## input y ##
-raw<- read.table("change-point-num.txt", sep='')
+raw<- read.table("change-point-2.txt", sep='')
 y<- raw[,1]
 n<- length(y)	# sample size
 
@@ -72,29 +72,24 @@ while(1){
 	theta_cur<- theta[iter, ]
 	S_cur<- S[iter, ]
 	
-	# update mass function
-	mass<- array(0, c(n, m+1))
-	mass[1, 1]<- 1
-	for(t in 2:n){
-		mass[t, 1]<- 1	# if k == 1 then k-1 == 0
-		for(k in 2:(m+1)){
-			if(mass[t, k-1] == 0){
-				mass[t, k] = 0
-			}
-			else{
-			mass[t, k]<- 1/(1+eq6(t, k-1, P_cur, mass)*ppois(y[t], theta_cur[k-1])/(eq6(t, k, P_cur, mass)*ppois(y[t], theta_cur[k])))
-			}
-		}
-		mass[t,]<- mass[t,]/sum(mass[t,])
-	}
-	
 	# update S
 	S_cur[n]<- m+1
-	S_cur[1]<- 1
-	for(t in (n-1):2){
-		prob<- c(prod(mass[t, S_cur[t+1]-1])*(1-prod(P_cur[S_cur[t+1]-1])), mass[t, S_cur[t+1]]*P_cur[S_cur[t+1]])
-		prob<- prob/sum(prob)	# probability for pick from S_cur[t+1]-1:S_cur[t+1]
-		S_cur[t]<- sample((S_cur[t+1]-1):S_cur[t+1], 1, prob = prob)
+	for(t in (n-1):1){
+		mass<- array(0, c(n, m+1))
+		k<- S_cur[t+1]
+		if(k > 1){
+			mass[1, 1]<- 1
+			for(tt in 2:n){
+				mass[tt, k]<- 1/(1+eq6(tt, k-1, P_cur, mass)*ppois(y[tt], theta_cur[k-1])/(eq6(tt, k, P_cur, mass)*ppois(y[tt], theta_cur[k])))
+				mass[tt, k-1]<- 1-mass[tt, k]
+			}
+			prob<- c(prod(mass[t, S_cur[t+1]-1])*(1-prod(P_cur[S_cur[t+1]-1])), mass[t, S_cur[t+1]]*P_cur[S_cur[t+1]])
+			prob<- prob/sum(prob)	# probability for pick from S_cur[t+1]-1:S_cur[t+1]
+			S_cur[t]<- sample((S_cur[t+1]-1):S_cur[t+1], 1, prob = prob)
+		}
+		if(k == 1){
+			S_cur[t]<- 1	
+		}
 	}
 	
 	# update P
@@ -183,27 +178,29 @@ for(i in 1:G){
 	}
 	
 	# update S_post
-	mass<- array(0, c(n, m+1))
-	mass[1, 1]<- 1
-	for(t in 2:n){
-		mass[t, 1]<- 1	# if k == 1 then k-1 == 0
-		for(k in 2:(m+1)){
-			if(mass[t, k-1] == 0){
-				mass[t, k] = 0
-			}
-			else{
-			mass[t, k]<- 1/(1+eq6(t, k-1, P_update, mass)*ppois(y[t], theta_star[k-1])/(eq6(t, k, P_update, mass)*ppois(y[t], theta_star[k])))
-			}
-		}
-		mass[t,]<- mass[t,]/sum(mass[t,])
-	}
 	S_post[i, n]<- m+1
-	S_post[i, 1]<- 1
-	for(t in (n-1):2){
-		prob<- c(prod(mass[t, S_post[i, t+1]-1])*(1-prod(P_update[S_post[i, t+1]-1])), mass[t, S_post[i, t+1]]*P_update[S_post[i, t+1]])
-		prob<- prob/sum(prob)	# probability for pick from S_cur[t+1]-1:S_cur[t+1]
-		S_post[i, t]<- sample((S_post[i, t+1]-1):S_post[i, t+1], 1, prob = prob)
+	for(t in (n-1):1){
+		mass<- array(0, c(n, m+1))
+		k<- S_post[i, t+1]
+		if(k > 1){
+			mass[1, 1]<- 1
+			for(tt in 2:n){
+				mass[tt, k]<- 1/(1+eq6(tt, k-1, P_update, mass)*ppois(y[tt], theta_star[k-1])/(eq6(tt, k, P_update, mass)*ppois(y[tt], theta_star[k])))
+				mass[tt, k-1]<- 1-mass[tt, k]
+			}
+			prob<- c(prod(mass[t, S_post[i, t+1]-1])*(1-prod(P_update[S_post[i, t+1]-1])), mass[t, S_post[i, t+1]]*P_update[S_post[i, t+1]])
+			prob<- prob/sum(prob)	# probability for pick from S_cur[t+1]-1:S_cur[t+1]
+			S_post[i, t]<- sample((S_post[i, t+1]-1):S_post[i, t+1], 1, prob = prob)
+		}
+		if(k == 1){
+			S_post[i, t]<- 1	
+		}
 	}
+	# for(t in (n-1):2){
+		# prob<- c(prod(mass[t, S_post[i, t+1]-1])*(1-prod(P_update[S_post[i, t+1]-1])), mass[t, S_post[i, t+1]]*P_update[S_post[i, t+1]])
+		# prob<- prob/sum(prob)	# probability for pick from S_cur[t+1]-1:S_cur[t+1]
+		# S_post[i, t]<- sample((S_post[i, t+1]-1):S_post[i, t+1], 1, prob = prob)
+	# }
 	count_post<- table(S_post[i,])-1	#n_ii
 	for(k in 1:m){
 		x1<- rgamma(1, a+count_post[k], 1)
@@ -213,26 +210,29 @@ for(i in 1:G){
 	}
 	
 	# update S_plot
-	mass<- array(0, c(n, m+1))
-	mass[1, 1]<- 1
-	for(t in 2:n){
-		mass[t, 1]<- 1	# if k == 1 then k-1 == 0
-		for(k in 2:(m+1)){
-			if(mass[t, k-1] == 0){
-				mass[t, k] = 0
+	S_plot[i, n, m+1]<- 1
+	for(t in (n-1):1){
+		mass<- array(0, c(n, m+1))
+		k<- S_cur[t+1]
+		if(k > 1){
+			mass[1, 1]<- 1
+			for(tt in 2:n){
+				mass[tt, k]<- 1/(1+eq6(tt, k-1, P[i], mass)*ppois(y[tt], theta[i, k-1])/(eq6(tt, k, P[i], mass)*ppois(y[tt], theta[i, k])))
+				mass[tt, k-1]<- 1-mass[tt, k]
 			}
-			else{
-			mass[t, k]<- 1/(1+eq6(t, k-1, P[i,], mass)*ppois(y[t], theta[i, k-1])/(eq6(t, k, P[i,], mass)*ppois(y[t], theta[i, k])))
-			}
+			S_plot[i, t, k]<- eq(t, k, P[i], mass)
+			S_plot[i, t, k-1]<- 1-S_plot[i, t, k]
 		}
-		mass[t,]<- mass[t,]/sum(mass[t,])
-	}
-	S_plot[i, 1, 1]<- 1
-	for(t in 2:n){
-		for(k in 1:(m+1)){
-			S_plot[i, t, k]<- eq6(t, k, P[i,], mass)
+		if(k == 1){
+			S_plot[i, t, 1]<- 1	
 		}
 	}
+	# S_plot[i, 1, 1]<- 1
+	# for(t in 2:n){
+		# for(k in 1:(m+1)){
+			# S_plot[i, t, k]<- eq6(t, k, P[i,], mass)
+		# }
+	# }
 }
 
 ln_theta_post_den<- log(mean(apply(theta_post, 1, prod)))
@@ -254,10 +254,10 @@ x<- seq(1, n, 1)
 
 # device
 pdf(file = paste(m, "Rplot.pdf", sep=''))
-par(mfrow = c(m+1, 2))	# split plot
-for(k in 1:m){
-	hist(time[,k], main = paste(k, "th change-point", sep=''), xlab = "Time")
-}
+par(mfrow = c(ceiling(m/2)+1, 2))	# split plot
+# for(k in 1:m){
+	# hist(time[,k], main = paste(k, "th change-point", sep=''), xlab = "Time")
+# }
 for(k in 1:(m+1)){
 	plot(density(theta[, k]), main = paste("lambda", k))
 }
