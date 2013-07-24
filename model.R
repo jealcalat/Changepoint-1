@@ -57,24 +57,24 @@ while(1){
 	S_cur<- S[iter, ]
 	
 	# update S
+	eq6<- array(0, c(n, m+1))
+	mass<- array(0, c(n, m+1))
+	eq6[1, 1]<- 1
+	mass[1, 1]<- 1
+	for(tt in 2:n){
+		eq6[tt, 1]<- P_cur[1]*mass[tt-1, 1]
+		for(kk in 2:(m+1)){
+			eq6[tt, kk]<- (1-P_cur[kk-1])*mass[tt-1, kk-1]+P_cur[kk]*mass[tt-1, kk]
+		}
+		for(kk in 1:(m+1)){
+			mass[tt, kk]<- eq6[tt, kk]*ppois(y[tt], theta_cur[kk])
+		}
+		mass[tt,]<- mass[tt,]/sum(mass[tt,])
+	}
 	S_cur[n]<- m+1
 	for(t in (n-1):1){
-		eq6<- array(0, c(n, m+1))
-		mass<- array(0, c(n, m+1))
-		eq6[1, 1]<- 1
-		mass[1, 1]<- 1
 		k<- S_cur[t+1]
 		if(k > 1){
-			for(tt in 2:n){
-				eq6[tt, 1]<- P_cur[1]*mass[tt-1, 1]
-				for(kk in 2:(m+1)){
-					eq6[tt, kk]<- (1-P_cur[kk-1])*mass[tt-1, kk-1]+P_cur[kk]*mass[tt-1, kk]
-				}
-				for(kk in 1:(m+1)){
-					mass[tt, kk]<- eq6[tt, kk]*ppois(y[tt], theta_cur[kk])
-				}
-				mass[tt,]<- mass[tt,]/sum(mass[tt,])
-			}
 			prob<- c(mass[t, k-1]*(1-P_cur[k-1]), mass[t, k]*P_cur[k])
 			prob<- prob/sum(prob)	# probability for pick from S_cur[t+1]-1:S_cur[t+1]
 			S_cur[t]<- sample((k-1):k, 1, prob = prob)
@@ -170,24 +170,24 @@ for(i in 1:G){
 	}
 	
 	# update S_post
+	eq6<- array(0, c(n, m+1))
+	mass<- array(0, c(n, m+1))
+	eq6[1, 1]<- 1
+	mass[1, 1]<- 1
+	for(tt in 2:n){
+		eq6[tt, 1]<- P_update[1]*mass[tt-1, 1]
+		for(kk in 2:(m+1)){
+			eq6[tt, kk]<- (1-P_update[kk-1])*mass[tt-1, kk-1]+P_update[kk]*mass[tt-1, kk]
+		}
+		for(kk in 1:(m+1)){
+			mass[tt, kk]<- eq6[tt, kk]*ppois(y[tt], theta_star[kk])
+		}
+		mass[tt,]<- mass[tt,]/sum(mass[tt,])
+	}
 	S_post[i, n]<- m+1
 	for(t in (n-1):1){
-		eq6<- array(0, c(n, m+1))
-		mass<- array(0, c(n, m+1))
-		eq6[1, 1]<- 1
-		mass[1, 1]<- 1
-		k<- S_post[i, t+1]
+			k<- S_post[i, t+1]
 		if(k > 1){
-			for(tt in 2:n){
-				eq6[tt, 1]<- P_update[1]*mass[tt-1, 1]
-				for(kk in 2:(m+1)){
-					eq6[tt, kk]<- (1-P_update[kk-1])*mass[tt-1, kk-1]+P_update[kk]*mass[tt-1, kk]
-				}
-				for(kk in 1:(m+1)){
-					mass[tt, kk]<- eq6[tt, kk]*ppois(y[tt], theta_star[kk])
-				}
-				mass[tt,]<- mass[tt,]/sum(mass[tt,])
-			}
 			prob<- c(mass[t, k-1]*(1-P_update[k-1]), mass[t, k]*P_update[k])
 			prob<- prob/sum(prob)	# probability for pick from S_cur[t+1]-1:S_cur[t+1]
 			S_post[i, t]<- sample((k-1):k, 1, prob = prob)
