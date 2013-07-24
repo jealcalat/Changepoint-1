@@ -26,22 +26,6 @@ y<- raw[,1]
 n<- length(y)	# sample size
 
 
-## functions ##
-# equation 6
-eq6<- function(t, k, P, mass){
-	if(k == 0){
-		output<- 0
-	}
-	else if(k == 1){
-		output<- P[1]*mass[t-1, 1]
-	}
-	else if(k > 1){
-		output<- (1-P[k-1])*mass[t-1, k-1] + P[k]*mass[t-1, k]
-	}
-	return(output)
-}
-
-
 ## initial setups ##
 # hyper parameters
 a<- round(0.1*n/(m+1)-0.1)
@@ -75,17 +59,25 @@ while(1){
 	# update S
 	S_cur[n]<- m+1
 	for(t in (n-1):1){
+		eq6<- array(0, c(n, m+1))
 		mass<- array(0, c(n, m+1))
+		eq6[1, 1]<- 1
+		mass[1, 1]<- 1
 		k<- S_cur[t+1]
 		if(k > 1){
-			mass[1, 1]<- 1
 			for(tt in 2:n){
-				mass[tt, k]<- 1/(1+eq6(tt, k-1, P_cur, mass)*ppois(y[tt], theta_cur[k-1])/(eq6(tt, k, P_cur, mass)*ppois(y[tt], theta_cur[k])))
-				mass[tt, k-1]<- 1-mass[tt, k]
+				eq6[tt, 1]<- P_cur[1]*mass[tt-1, 1]
+				for(kk in 2:(m+1)){
+					eq6[tt, kk]<- (1-P_cur[kk-1])*mass[tt-1, kk-1]+P_cur[kk]*mass[tt-1, kk]
+				}
+				for(kk in 1:(m+1)){
+					mass[tt, kk]<- eq6[tt, kk]*ppois(y[tt], theta_cur[kk])
+				}
+				mass[tt,]<- mass[tt,]/sum(mass[tt,])
 			}
-			prob<- c(prod(mass[t, S_cur[t+1]-1])*(1-prod(P_cur[S_cur[t+1]-1])), mass[t, S_cur[t+1]]*P_cur[S_cur[t+1]])
+			prob<- c(mass[t, k-1]*(1-P_cur[k-1]), mass[t, k]*P_cur[k])
 			prob<- prob/sum(prob)	# probability for pick from S_cur[t+1]-1:S_cur[t+1]
-			S_cur[t]<- sample((S_cur[t+1]-1):S_cur[t+1], 1, prob = prob)
+			S_cur[t]<- sample((k-1):k, 1, prob = prob)
 		}
 		if(k == 1){
 			S_cur[t]<- 1	
@@ -140,26 +132,26 @@ theta_star<- apply(theta, 2, mean)
 
 # likelihood at star
 y_like<- array(0, n)
+eq6<- array(0, c(n, m+1))
 mass<- array(0, c(n, m+1))
+eq6[1, 1]<- 1
 mass[1, 1]<- 1
 y_like[1]<- ppois(y[1], theta_star[1])
-for(t in 2:n){
-	mass[t, 1]<- 1	# if k == 1 then k-1 == 0
-	for(k in 2:(m+1)){
-		if(mass[t, k-1] == 0){
-				mass[t, k] = 0
-		}
-		else{
-		mass[t, k]<- 1/(1+eq6(t, k-1, P_star, mass)*ppois(y[t], theta_star[k-1])/(eq6(t, k, P_star, mass)*ppois(y[t], theta_star[k])))
-		}
+for(tt in 2:n){
+	eq6[tt, 1]<- P_star[1]*mass[tt-1, 1]
+	for(kk in 2:(m+1)){
+		eq6[tt, kk]<- (1-P_star[kk-1])*mass[tt-1, kk-1]+P_star[kk]*mass[tt-1, kk]
 	}
-	mass[t,]<- mass[t,]/sum(mass[t,])
-	for(k in 1:(m+1)){
-		y_like[t]<- y_like[t]+ppois(y[t], theta_star[k])*eq6(t, k, P_star, mass)
+	for(kk in 1:(m+1)){
+		mass[tt, kk]<- eq6[tt, kk]*ppois(y[tt], theta_star[kk])
+	}
+	mass[tt,]<- mass[tt,]/sum(mass[tt,])
+	for(kk in 1:(m+1)){
+		y_like[tt]<- y_like[tt]+ppois(y[tt], theta_star[kk])*eq6[tt, kk]
 	}
 }
 ln_y_like<- sum(log(y_like))	# likelihood function
-# write.table(ln_y_like, file = paste(m, "ln_y_like.txt", sep = ''))
+write.table(ln_y_like, file = paste(m, "ln_y_like.txt", sep = ''))
 
 #marginal likelihood
 time<- array(NA, c(G, m))	# change-points
@@ -180,27 +172,30 @@ for(i in 1:G){
 	# update S_post
 	S_post[i, n]<- m+1
 	for(t in (n-1):1){
+		eq6<- array(0, c(n, m+1))
 		mass<- array(0, c(n, m+1))
+		eq6[1, 1]<- 1
+		mass[1, 1]<- 1
 		k<- S_post[i, t+1]
 		if(k > 1){
-			mass[1, 1]<- 1
 			for(tt in 2:n){
-				mass[tt, k]<- 1/(1+eq6(tt, k-1, P_update, mass)*ppois(y[tt], theta_star[k-1])/(eq6(tt, k, P_update, mass)*ppois(y[tt], theta_star[k])))
-				mass[tt, k-1]<- 1-mass[tt, k]
+				eq6[tt, 1]<- P_update[1]*mass[tt-1, 1]
+				for(kk in 2:(m+1)){
+					eq6[tt, kk]<- (1-P_update[kk-1])*mass[tt-1, kk-1]+P_update[kk]*mass[tt-1, kk]
+				}
+				for(kk in 1:(m+1)){
+					mass[tt, kk]<- eq6[tt, kk]*ppois(y[tt], theta_star[kk])
+				}
+				mass[tt,]<- mass[tt,]/sum(mass[tt,])
 			}
-			prob<- c(prod(mass[t, S_post[i, t+1]-1])*(1-prod(P_update[S_post[i, t+1]-1])), mass[t, S_post[i, t+1]]*P_update[S_post[i, t+1]])
+			prob<- c(mass[t, k-1]*(1-P_update[k-1]), mass[t, k]*P_update[k])
 			prob<- prob/sum(prob)	# probability for pick from S_cur[t+1]-1:S_cur[t+1]
-			S_post[i, t]<- sample((S_post[i, t+1]-1):S_post[i, t+1], 1, prob = prob)
+			S_post[i, t]<- sample((k-1):k, 1, prob = prob)
 		}
 		if(k == 1){
 			S_post[i, t]<- 1	
 		}
-	}
-	# for(t in (n-1):2){
-		# prob<- c(prod(mass[t, S_post[i, t+1]-1])*(1-prod(P_update[S_post[i, t+1]-1])), mass[t, S_post[i, t+1]]*P_update[S_post[i, t+1]])
-		# prob<- prob/sum(prob)	# probability for pick from S_cur[t+1]-1:S_cur[t+1]
-		# S_post[i, t]<- sample((S_post[i, t+1]-1):S_post[i, t+1], 1, prob = prob)
-	# }
+
 	count_post<- table(S_post[i,])-1	#n_ii
 	for(k in 1:m){
 		x1<- rgamma(1, a+count_post[k], 1)
@@ -210,39 +205,31 @@ for(i in 1:G){
 	}
 	
 	# update S_plot
-	S_plot[i, n, m+1]<- 1
-	for(t in (n-1):1){
-		mass<- array(0, c(n, m+1))
-		k<- S_cur[t+1]
-		if(k > 1){
-			mass[1, 1]<- 1
-			for(tt in 2:n){
-				mass[tt, k]<- 1/(1+eq6(tt, k-1, P[i], mass)*ppois(y[tt], theta[i, k-1])/(eq6(tt, k, P[i], mass)*ppois(y[tt], theta[i, k])))
-				mass[tt, k-1]<- 1-mass[tt, k]
-			}
-			S_plot[i, t, k]<- eq(t, k, P[i], mass)
-			S_plot[i, t, k-1]<- 1-S_plot[i, t, k]
+	eq6<- array(0, c(n, m+1))
+	mass<- array(0, c(n, m+1))
+	eq6[1, 1]<- 1
+	mass[1, 1]<- 1
+	for(tt in 2:n){
+		eq6[tt, 1]<- P[i, 1]*mass[tt-1, 1]
+		for(kk in 2:(m+1)){
+			eq6[tt, kk]<- (1-P[i, kk-1])*mass[tt-1, kk-1]+P[i, kk]*mass[tt-1, kk]
 		}
-		if(k == 1){
-			S_plot[i, t, 1]<- 1	
+		for(kk in 1:(m+1)){
+			mass[tt, kk]<- eq6[tt, kk]*ppois(y[tt], theta[i, kk])
 		}
+		mass[tt,]<- mass[tt,]/sum(mass[tt,])
 	}
-	# S_plot[i, 1, 1]<- 1
-	# for(t in 2:n){
-		# for(k in 1:(m+1)){
-			# S_plot[i, t, k]<- eq6(t, k, P[i,], mass)
-		# }
-	# }
+	S_plot[i, ,]<- eq6
 }
 
 ln_theta_post_den<- log(mean(apply(theta_post, 1, prod)))
-# write.table(ln_theta_post_den, file = paste(m, "ln_theta_post_den.txt", sep = ''))
+write.table(ln_theta_post_den, file = paste(m, "ln_theta_post_den.txt", sep = ''))
 ln_P_post_den<- log(mean(apply(P_post, 1, prod)))
-# write.table(ln_P_post_den, file = paste(m, "ln_P_post_den.txt", sep = ''))
+write.table(ln_P_post_den, file = paste(m, "ln_P_post_den.txt", sep = ''))
 ln_theta_den<- sum(log(apply(as.array(theta_star), 1, pgamma, m+1, 1)))
-# write.table(ln_theta_den, file = paste(m, "ln_theta_den.txt", sep = ''))
+write.table(ln_theta_den, file = paste(m, "ln_theta_den.txt", sep = ''))
 ln_P_den<- sum(log(apply(as.array(P_star), 1, pbeta, a, b)))
-# write.table(ln_P_den, file = paste(m, "ln_P_den.txt", sep = ''))
+write.table(ln_P_den, file = paste(m, "ln_P_den.txt", sep = ''))
 
 # bayes factor
 ln_bayes<- ln_y_like+ln_theta_den+ln_P_den - ln_theta_post_den-ln_P_post_den
