@@ -42,7 +42,7 @@ for(t in 1:(m+1)){
 }
 
 # model parameters theta
-theta<- array(n/(m+1), c(1, m+1))
+theta<- array(mean(y), c(1, m+1))
 
 comb<- c(P[-c(m+1)], S[2:(n-1)], theta)	# all combined parameters exclude P[m+1] = 1 & S[1] = 1 & S[n] = m+1
 iter<- 0	# iteration counts
@@ -67,7 +67,7 @@ while(1){
 			eq6[tt, kk]<- (1-P_cur[kk-1])*mass[tt-1, kk-1]+P_cur[kk]*mass[tt-1, kk]
 		}
 		for(kk in 1:(m+1)){
-			mass[tt, kk]<- eq6[tt, kk]*ppois(y[tt], theta_cur[kk])
+			mass[tt, kk]<- eq6[tt, kk]*dpois(y[tt], theta_cur[kk])
 		}
 		mass[tt,]<- mass[tt,]/sum(mass[tt,])
 	}
@@ -136,18 +136,18 @@ eq6<- array(0, c(n, m+1))
 mass<- array(0, c(n, m+1))
 eq6[1, 1]<- 1
 mass[1, 1]<- 1
-y_like[1]<- ppois(y[1], theta_star[1])
+y_like[1]<- dpois(y[1], theta_star[1])
 for(tt in 2:n){
 	eq6[tt, 1]<- P_star[1]*mass[tt-1, 1]
 	for(kk in 2:(m+1)){
 		eq6[tt, kk]<- (1-P_star[kk-1])*mass[tt-1, kk-1]+P_star[kk]*mass[tt-1, kk]
 	}
 	for(kk in 1:(m+1)){
-		mass[tt, kk]<- eq6[tt, kk]*ppois(y[tt], theta_star[kk])
+		mass[tt, kk]<- eq6[tt, kk]*dpois(y[tt], theta_star[kk])
 	}
 	mass[tt,]<- mass[tt,]/sum(mass[tt,])
 	for(kk in 1:(m+1)){
-		y_like[tt]<- y_like[tt]+ppois(y[tt], theta_star[kk])*eq6[tt, kk]
+		y_like[tt]<- y_like[tt]+dpois(y[tt], theta_star[kk])*eq6[tt, kk]
 	}
 }
 ln_y_like<- sum(log(y_like))	# likelihood function
@@ -166,7 +166,7 @@ for(i in 1:G){
 	
 	# update theta_post
 	for(k in 1:(m+1)){
-		theta_post[i, k]<- pgamma(theta_star[k], m+1+sum(y[S[i,] == k]), table(S[i,])[k]+1)
+		theta_post[i, k]<- dgamma(theta_star[k], m+1+sum(y[S[i,] == k]), table(S[i,])[k]+1)
 	}
 	
 	# update S_post
@@ -180,7 +180,7 @@ for(i in 1:G){
 			eq6[tt, kk]<- (1-P_update[kk-1])*mass[tt-1, kk-1]+P_update[kk]*mass[tt-1, kk]
 		}
 		for(kk in 1:(m+1)){
-			mass[tt, kk]<- eq6[tt, kk]*ppois(y[tt], theta_star[kk])
+			mass[tt, kk]<- eq6[tt, kk]*dpois(y[tt], theta_star[kk])
 		}
 		mass[tt,]<- mass[tt,]/sum(mass[tt,])
 	}
@@ -216,7 +216,7 @@ for(i in 1:G){
 			eq6[tt, kk]<- (1-P[i, kk-1])*mass[tt-1, kk-1]+P[i, kk]*mass[tt-1, kk]
 		}
 		for(kk in 1:(m+1)){
-			mass[tt, kk]<- eq6[tt, kk]*ppois(y[tt], theta[i, kk])
+			mass[tt, kk]<- eq6[tt, kk]*dpois(y[tt], theta[i, kk])
 		}
 		mass[tt,]<- mass[tt,]/sum(mass[tt,])
 	}
@@ -227,9 +227,9 @@ ln_theta_post_den<- log(mean(apply(theta_post, 1, prod)))
 write.table(ln_theta_post_den, file = paste(m, "ln_theta_post_den.txt", sep = ''))
 ln_P_post_den<- log(mean(apply(P_post, 1, prod)))
 write.table(ln_P_post_den, file = paste(m, "ln_P_post_den.txt", sep = ''))
-ln_theta_den<- sum(log(apply(as.array(theta_star), 1, pgamma, m+1, 1)))
+ln_theta_den<- sum(log(apply(as.array(theta_star), 1, dgamma, m+1, 1)))
 write.table(ln_theta_den, file = paste(m, "ln_theta_den.txt", sep = ''))
-ln_P_den<- sum(log(apply(as.array(P_star), 1, pbeta, a, b)))
+ln_P_den<- sum(log(apply(as.array(P_star), 1, dbeta, a, b)))
 write.table(ln_P_den, file = paste(m, "ln_P_den.txt", sep = ''))
 
 # bayes factor
