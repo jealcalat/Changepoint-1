@@ -36,7 +36,10 @@ P<- array(0.5, c(1, m+1))
 P[1, m+1]<- 1
 
 # latent variable S
-S<- array(0, c(1, n))
+S<- array(m+1, c(1, n))
+for(i in 1:(m+1)){
+	S[i]<- i
+}
 
 # model parameters theta
 theta<- array(mean(y), c(1, m+1))
@@ -114,7 +117,7 @@ while(1){
 		comb_est<- comb_mcse[,1]
 		# comb_sd<- apply(comb, 2, sd)
 		thresh<- thresh+1000
-		cond<- comb_se*1.645+1/iter < 0.05*comb_est
+		cond<- comb_se*1.95+1/iter < 0.05*comb_est
 		write.table(cond, file = paste(m, "cond.txt", sep=''), append = T)
 		if(prod(cond)){
 			break
@@ -225,13 +228,13 @@ for(i in 1:G){
 }
 
 ln_theta_post_den<- log(mean(apply(theta_post, 1, prod)))
-write.table(ln_theta_post_den, file = paste(m, "ln_theta_post_den.txt", sep = ''))
+# write.table(ln_theta_post_den, file = paste(m, "ln_theta_post_den.txt", sep = ''))
 ln_P_post_den<- log(mean(apply(P_post, 1, prod)))
-write.table(ln_P_post_den, file = paste(m, "ln_P_post_den.txt", sep = ''))
+# write.table(ln_P_post_den, file = paste(m, "ln_P_post_den.txt", sep = ''))
 ln_theta_den<- sum(log(apply(as.array(theta_star), 1, dgamma, m+1, 1)))
-write.table(ln_theta_den, file = paste(m, "ln_theta_den.txt", sep = ''))
+# write.table(ln_theta_den, file = paste(m, "ln_theta_den.txt", sep = ''))
 ln_P_den<- sum(log(apply(as.array(P_star[-(m+1)]), 1, dbeta, a, b)))
-write.table(ln_P_den, file = paste(m, "ln_P_den.txt", sep = ''))
+# write.table(ln_P_den, file = paste(m, "ln_P_den.txt", sep = ''))
 
 # bayes factor
 ln_bayes<- ln_y_like+ln_theta_den+ln_P_den - ln_theta_post_den-ln_P_post_den
