@@ -44,7 +44,7 @@ theta<- array(mean(y), c(1, m+1))
 # comb<- c(P[-c(m+1)], S[2:(n-1)], theta)	# all combined parameters exclude P[m+1] = 1 & S[1] = 1 & S[n] = m+1
 comb<- c(P[-c(m+1)], theta)	# all combined parameters exclude P[m+1] = 1 & S[1] = 1 & S[n] = m+1
 iter<- 0	# iteration counts
-thresh<- 10000	# threshold for stopping rule
+thresh<- 5000	# threshold for stopping rule
 
 
 ## mcmc simulation ##
@@ -112,7 +112,7 @@ while(1){
 		comb_mcse<- mcse.mat(comb)[,2]
 		comb_sd<- apply(comb, 2, sd)
 		thresh<- thresh+1000
-		cond<- comb_mcse*1.96+1/iter < 0.05*comb_sd
+		cond<- comb_mcse*1.645+1/iter < 0.1*comb_sd
 		write.table(cond, file = paste(m, "cond.txt", sep=''), append = T)
 		if(prod(cond)){
 			break
