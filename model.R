@@ -41,8 +41,8 @@ S<- array(0, c(1, n))
 # model parameters theta
 theta<- array(mean(y), c(1, m+1))
 
-# comb<- c(P[-c(m+1)], S[2:(n-1)], theta)	# all combined parameters exclude P[m+1] = 1 & S[1] = 1 & S[n] = m+1
-comb<- c(P[-c(m+1)], theta)	# all combined parameters exclude P[m+1] = 1 & S[1] = 1 & S[n] = m+1
+comb<- c(P[-c(m+1)], S[2:(n-1)], theta)	# all combined parameters exclude P[m+1] = 1 & S[1] = 1 & S[n] = m+1
+# comb<- c(P[-c(m+1)], theta)	# all combined parameters exclude P[m+1] = 1 & S[1] = 1 & S[n] = m+1
 iter<- 0	# iteration counts
 thresh<- 5000	# threshold for stopping rule
 
@@ -103,16 +103,18 @@ while(1){
 	write.table(theta, file = paste(m, "theta.txt", sep=''))
 	
 	# store all parameters together
-	# comb_cur<- c(P_cur[-c(m+1)], S_cur[2:(n-1)], theta_cur)
-	comb_cur<- c(P_cur[-c(m+1)], theta_cur)
+	comb_cur<- c(P_cur[-c(m+1)], S_cur[2:(n-1)], theta_cur)
+	# comb_cur<- c(P_cur[-c(m+1)], theta_cur)
 	comb<- rbind(comb, comb_cur)
 	
 	# check stopping rule
 	if(iter > thresh){
-		comb_mcse<- mcse.mat(comb)[,2]
-		comb_sd<- apply(comb, 2, sd)
+		comb_mcse<- mcse.mat(comb)
+		comb_se<- comb_mcse[,2]
+		comb_est<- comb_mcse[,1]
+		# comb_sd<- apply(comb, 2, sd)
 		thresh<- thresh+1000
-		cond<- comb_mcse*1.645+1/iter < 0.1*comb_sd
+		cond<- comb_se*1.645+1/iter < 0.1*comb_est
 		write.table(cond, file = paste(m, "cond.txt", sep=''), append = T)
 		if(prod(cond)){
 			break
