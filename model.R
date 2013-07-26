@@ -117,7 +117,7 @@ while(1){
 		comb_est<- comb_mcse[,1]
 		# comb_sd<- apply(comb, 2, sd)
 		thresh<- thresh+1000
-		cond<- comb_se*1.95+1/iter < 0.05*comb_est
+		cond<- comb_se*1.645+1/iter < 0.05*comb_est
 		write.table(cond, file = paste(m, "cond.txt", sep=''), append = T)
 		if(prod(cond)){
 			break
@@ -255,7 +255,7 @@ for(k in 1:(m+1)){
 }
 plot(x, S_plots[,1], "l", ylim = c(0, 1), xlab = "Time", ylab = "Pr(S|Y)", main = "Prob for change points")
 for(k in 2:(m+1)){
-	lines(x, S_plots[,k], lty = 2)
+	lines(x, S_plots[,k], lty = k, col = k)
 }
 dev.off()
 
