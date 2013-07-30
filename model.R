@@ -47,11 +47,11 @@ theta<- array(mean(y), c(1, m+1))
 comb<- c(P[-c(m+1)], S[2:(n-1)], theta)	# all combined parameters exclude P[m+1] = 1 & S[1] = 1 & S[n] = m+1
 # comb<- c(P[-c(m+1)], theta)	# all combined parameters exclude P[m+1] = 1 & S[1] = 1 & S[n] = m+1
 iter<- 0	# iteration counts
-thresh<- 5000	# threshold for stopping rule
+thresh<- 8000	# threshold for stopping rule
 
 
 ## mcmc simulation ##
-while(1){
+while(iter < 50000){	# max iter 50000
 	iter<- iter+1
 	P_cur<- P[iter, ]
 	theta_cur<- theta[iter, ]
