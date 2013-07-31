@@ -241,7 +241,7 @@ write.table(ln_bayes, file = paste(m, "bayes.txt", sep = ''))
 # confidence region
 region<- array(NA, c(m, 3))
 for(k in 1:m){
-	region[k,]<- quantile(time[,k])
+	region[k,]<- quantile(time[,k], c(0.05, 0.5, 0.95))
 }
 write.table(region, file = paste(m, "region.txt", sep = ''))
 
