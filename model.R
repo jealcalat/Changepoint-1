@@ -1,15 +1,15 @@
-##################################################################
-##	Bayesian change point detection	for poisson data			##
-##	baed on Chib (1997) by Lei Gong				  		  		##
-##	fit model with pre-assigned number of change points	  		##
-##	use Bayes factor/marginal liklelihood to compare models		##	
-##	relative fixed-width rule as stopping criteria				## 
-##	input arguments:											##
-##		m:	number of change points								##
-##		y:	original dataset									##
-##	output files:												##
-##		P.txt, S.txt, theta.txt, cond.txt, bayes.txt, Rplot.pdf	##
-##################################################################
+##############################################################################
+##	Bayesian change point detection	for poisson data						##
+##	baed on Chib (1997) by Lei Gong				  		  					##
+##	fit model with pre-assigned number of change points	  					##
+##	use Bayes factor/marginal liklelihood to compare models					##	
+##	relative fixed-width rule as stopping criteria							## 
+##	input arguments:														##
+##		m:	number of change points											##
+##		y:	original dataset												##
+##	output files:															##
+##		P.txt, S.txt, theta.txt, cond.txt, bayes.txt, Rplot.pdf, region.txt	##
+##############################################################################
 
 
 library(mcmcse)
@@ -21,8 +21,8 @@ m<- as.numeric(args[1])
 
 
 ## input y ##
-raw<- read.table("change-point-num.txt", sep='')
-y<- raw[,1]
+raw<- read.table("data.txt", sep='')
+y<- raw[,2]
 n<- length(y)	# sample size
 
 
@@ -45,7 +45,6 @@ for(i in 1:(m+1)){
 theta<- array(mean(y), c(1, m+1))
 
 comb<- c(P[-c(m+1)], S[2:(n-1)], theta)	# all combined parameters exclude P[m+1] = 1 & S[1] = 1 & S[n] = m+1
-# comb<- c(P[-c(m+1)], theta)	# all combined parameters exclude P[m+1] = 1 & S[1] = 1 & S[n] = m+1
 iter<- 0	# iteration counts
 thresh<- 8000	# threshold for stopping rule
 
@@ -107,7 +106,6 @@ while(iter < 50000){	# max iter 50000
 	
 	# store all parameters together
 	comb_cur<- c(P_cur[-c(m+1)], S_cur[2:(n-1)], theta_cur)
-	# comb_cur<- c(P_cur[-c(m+1)], theta_cur)
 	comb<- rbind(comb, comb_cur)
 	
 	# check stopping rule
@@ -240,9 +238,17 @@ ln_P_den<- sum(log(apply(as.array(P_star[-(m+1)]), 1, dbeta, a, b)))
 ln_bayes<- ln_y_like+ln_theta_den+ln_P_den - ln_theta_post_den-ln_P_post_den
 write.table(ln_bayes, file = paste(m, "bayes.txt", sep = ''))
 
+# confidence region
+region<- array(NA, c(m, 3))
+for(k in 1:m){
+	region[k,]<- quantile(time[,k])
+}
+write.table(region, file = paste(m, "region.txt", sep = ''))
+
+
 # plots
 S_plots<- apply(S_plot, c(2,3), mean)
-x<- seq(1, n, 1)
+x<- raw[,1]
 
 # device
 pdf(file = paste(m, "Rplot.pdf", sep=''))
