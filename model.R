@@ -30,6 +30,7 @@ n<- length(y)	# sample size
 # hyper parameters
 a<- round(0.1*n/(m+1)-0.1)
 b<- 0.1
+r<- mean(y)^2/(var(y)-mean(y))
 
 # transition matrix P
 P<- array(0.5, c(1, m+1))
@@ -42,7 +43,8 @@ for(i in 1:(m+1)){
 }
 
 # model parameters theta
-theta<- array(mean(y), c(1, m+1))
+# theta<- array(mean(y), c(1, m+1))
+theta<- array(0.5, c(1, m+1))	# for NB
 
 comb<- c(P[-c(m+1)], S[2:(n-1)], theta)	# all combined parameters exclude P[m+1] = 1 & S[1] = 1 & S[n] = m+1
 iter<- 0	# iteration counts
@@ -67,7 +69,8 @@ while(iter < 50000){	# max iter 50000
 			eq6[tt, kk]<- (1-P_cur[kk-1])*mass[tt-1, kk-1]+P_cur[kk]*mass[tt-1, kk]
 		}
 		for(kk in 1:(m+1)){
-			mass[tt, kk]<- eq6[tt, kk]*dpois(y[tt], theta_cur[kk])
+			# mass[tt, kk]<- eq6[tt, kk]*dpois(y[tt], theta_cur[kk])
+			mass[tt, kk]<- eq6[tt, kk]*dnbinom(y[tt], r, theta_cur[kk])	# for NB
 		}
 		mass[tt,]<- mass[tt,]/sum(mass[tt,])
 	}
@@ -93,9 +96,13 @@ while(iter < 50000){	# max iter 50000
 	}
 	
 	# update theta
+	# for(i in 1:(m+1)){
+		# theta_cur[i]<- rgamma(1, m+1+sum(y[S_cur == i]), count[i]+2)
+	# }
 	for(i in 1:(m+1)){
-		theta_cur[i]<- rgamma(1, m+1+sum(y[S_cur == i]), count[i]+2)
+		theta_cur[i]<- rbeta(1, r*(count[i]+1), sum(y[S_cur == i])+0.5)	# for NB
 	}
+	
 	
 	P<- rbind(P, P_cur)
 	S<- rbind(S, S_cur)
@@ -138,18 +145,21 @@ eq6<- array(0, c(n, m+1))
 mass<- array(0, c(n, m+1))
 eq6[1, 1]<- 1
 mass[1, 1]<- 1
-y_like[1]<- dpois(y[1], theta_star[1])
+# y_like[1]<- dpois(y[1], theta_star[1])
+y_like[1]<- dnbinom(y[1], r, theta_star[1])	# for NB
 for(tt in 2:n){
 	eq6[tt, 1]<- P_star[1]*mass[tt-1, 1]
 	for(kk in 2:(m+1)){
 		eq6[tt, kk]<- (1-P_star[kk-1])*mass[tt-1, kk-1]+P_star[kk]*mass[tt-1, kk]
 	}
 	for(kk in 1:(m+1)){
-		mass[tt, kk]<- eq6[tt, kk]*dpois(y[tt], theta_star[kk])
+		# mass[tt, kk]<- eq6[tt, kk]*dpois(y[tt], theta_star[kk])
+		mass[tt, kk]<- eq6[tt, kk]*dnbinom(y[tt], r, theta_star[kk])	# for NB
 	}
 	mass[tt,]<- mass[tt,]/sum(mass[tt,])
 	for(kk in 1:(m+1)){
-		y_like[tt]<- y_like[tt]+dpois(y[tt], theta_star[kk])*eq6[tt, kk]
+		# y_like[tt]<- y_like[tt]+dpois(y[tt], theta_star[kk])*eq6[tt, kk]
+		y_like[tt]<- y_like[tt]+dnbinom(y[tt], r, theta_star[kk])*eq6[tt, kk]	# for NB
 	}
 }
 ln_y_like<- sum(log(y_like))	# likelihood function
@@ -168,7 +178,8 @@ for(i in 1:G){
 	
 	# update theta_post
 	for(k in 1:(m+1)){
-		theta_post[i, k]<- dgamma(theta_star[k], m+1+sum(y[S[i,] == k]), table(S[i,])[k]+1)
+		# theta_post[i, k]<- dgamma(theta_star[k], m+1+sum(y[S[i,] == k]), table(S[i,])[k]+1)
+		theta_post[i, k]<- dbeta(theta_star[k], table(S[i,])[k]*r, 0.5+sum(y[S[i,] == k]))	# for NB
 	}
 	
 	# update S_post
@@ -182,7 +193,8 @@ for(i in 1:G){
 			eq6[tt, kk]<- (1-P_update[kk-1])*mass[tt-1, kk-1]+P_update[kk]*mass[tt-1, kk]
 		}
 		for(kk in 1:(m+1)){
-			mass[tt, kk]<- eq6[tt, kk]*dpois(y[tt], theta_star[kk])
+			# mass[tt, kk]<- eq6[tt, kk]*dpois(y[tt], theta_star[kk])
+			mass[tt, kk]<- eq6[tt, kk]*dnbinom(y[tt], r, theta_star[kk])	# for NB
 		}
 		mass[tt,]<- mass[tt,]/sum(mass[tt,])
 	}
@@ -218,7 +230,8 @@ for(i in 1:G){
 			eq6[tt, kk]<- (1-P[i, kk-1])*mass[tt-1, kk-1]+P[i, kk]*mass[tt-1, kk]
 		}
 		for(kk in 1:(m+1)){
-			mass[tt, kk]<- eq6[tt, kk]*dpois(y[tt], theta[i, kk])
+			# mass[tt, kk]<- eq6[tt, kk]*dpois(y[tt], theta[i, kk])
+			mass[tt, kk]<- eq6[tt, kk]*dnbinom(y[tt], r, theta[i, kk])	# for NB
 		}
 		mass[tt,]<- mass[tt,]/sum(mass[tt,])
 	}
@@ -229,7 +242,8 @@ ln_theta_post_den<- log(mean(apply(theta_post, 1, prod)))
 write.table(ln_theta_post_den, file = paste(m, "ln_theta_post_den.txt", sep = ''))
 ln_P_post_den<- log(mean(apply(P_post, 1, prod)))
 write.table(ln_P_post_den, file = paste(m, "ln_P_post_den.txt", sep = ''))
-ln_theta_den<- sum(log(apply(as.array(theta_star), 1, dgamma, m+1, 1)))
+# ln_theta_den<- sum(log(apply(as.array(theta_star), 1, dgamma, m+1, 1)))
+ln_theta_den<- sum(log(apply(as.array(theta_star), 1, dbeta, 0, 0.5)))	# for NB
 write.table(ln_theta_den, file = paste(m, "ln_theta_den.txt", sep = ''))
 ln_P_den<- sum(log(apply(as.array(P_star[-(m+1)]), 1, dbeta, a, b)))
 write.table(ln_P_den, file = paste(m, "ln_P_den.txt", sep = ''))
