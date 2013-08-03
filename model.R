@@ -43,9 +43,9 @@ for(i in 1:(m+1)){
 
 # model parameters theta
 # theta<- array(mean(y), c(1, m+1))
-theta<- array(0.5, c(1, m+1))	# for NB
-r<- array(mean(y)^2/(var(y)-mean(y)), c(1, m+1))	# for NB
-
+theta<- array(mean(y)/var(y), c(1, m+1))	# for NB
+r<- mean(y)^2/(var(y)-mean(y))	# for NB
+write.table(r, file = paste(m, "r.txt", sep=''))
 
 comb<- c(P[-c(m+1)], S[2:(n-1)], theta)	# all combined parameters exclude P[m+1] = 1 & S[1] = 1 & S[n] = m+1
 iter<- 0	# iteration counts
@@ -57,7 +57,6 @@ while(iter < 50000){	# max iter 50000
 	iter<- iter+1
 	P_cur<- P[iter, ]
 	theta_cur<- theta[iter, ]
-	r_cur<- r[iter, ] # for NB
 	S_cur<- S[iter, ]
 	
 	# update S
@@ -72,7 +71,7 @@ while(iter < 50000){	# max iter 50000
 		}
 		for(kk in 1:(m+1)){
 			# mass[tt, kk]<- eq6[tt, kk]*dpois(y[tt], theta_cur[kk])
-			mass[tt, kk]<- eq6[tt, kk]*dnbinom(y[tt], r_cur[kk], theta_cur[kk])	# for NB
+			mass[tt, kk]<- eq6[tt, kk]*dnbinom(y[tt], r, theta_cur[kk])	# for NB
 		}
 		mass[tt,]<- mass[tt,]/sum(mass[tt,])
 	}
@@ -102,19 +101,16 @@ while(iter < 50000){	# max iter 50000
 		# theta_cur[i]<- rgamma(1, m+1+sum(y[S_cur == i]), count[i]+2)
 	# }
 	for(i in 1:(m+1)){
-		r_cur[i]<- mean(y[S_cur == i])^2/(var(y[S_cur == i])-mean(y[S_cur == i]))	# for NB
-		theta_cur[i]<- rbeta(1, r_cur[i]*(count[i]+1), sum(y[S_cur == i])+0.5)	# for NB
+		theta_cur[i]<- rbeta(1, r*(count[i]+1), sum(y[S_cur == i])+0.5)	# for NB
 	}
 	
 	
 	P<- rbind(P, P_cur)
 	S<- rbind(S, S_cur)
 	theta<- rbind(theta, theta_cur)
-	r<- rbind(r, r_cur)	# for NB
 	write.table(P, file = paste(m, "P.txt", sep=''))
 	write.table(S, file = paste(m, "S.txt", sep=''))
 	write.table(theta, file = paste(m, "theta.txt", sep=''))
-	write.table(r, file = paste(m, "r.txt", sep=''))	# for NB
 	
 	# store all parameters together
 	comb_cur<- c(P_cur[-c(m+1)], S_cur[2:(n-1)], theta_cur)
@@ -143,7 +139,6 @@ G<- dim(P)[1]
 # posterior mean
 P_star<- apply(P, 2, mean)
 theta_star<- apply(theta, 2, mean)
-r_star<- apply(r, 2, mean)	# for NB
 
 # likelihood at star
 y_like<- array(0, n)
@@ -152,7 +147,7 @@ mass<- array(0, c(n, m+1))
 eq6[1, 1]<- 1
 mass[1, 1]<- 1
 # y_like[1]<- dpois(y[1], theta_star[1])
-y_like[1]<- dnbinom(y[1], r_star[1], theta_star[1])	# for NB
+y_like[1]<- dnbinom(y[1], r, theta_star[1])	# for NB
 for(tt in 2:n){
 	eq6[tt, 1]<- P_star[1]*mass[tt-1, 1]
 	for(kk in 2:(m+1)){
@@ -160,12 +155,12 @@ for(tt in 2:n){
 	}
 	for(kk in 1:(m+1)){
 		# mass[tt, kk]<- eq6[tt, kk]*dpois(y[tt], theta_star[kk])
-		mass[tt, kk]<- eq6[tt, kk]*dnbinom(y[tt], r_star[kk], theta_star[kk])	# for NB
+		mass[tt, kk]<- eq6[tt, kk]*dnbinom(y[tt], r, theta_star[kk])	# for NB
 	}
 	mass[tt,]<- mass[tt,]/sum(mass[tt,])
 	for(kk in 1:(m+1)){
 		# y_like[tt]<- y_like[tt]+dpois(y[tt], theta_star[kk])*eq6[tt, kk]
-		y_like[tt]<- y_like[tt]+dnbinom(y[tt], r_star[kk], theta_star[kk])*eq6[tt, kk]	# for NB
+		y_like[tt]<- y_like[tt]+dnbinom(y[tt], r, theta_star[kk])*eq6[tt, kk]	# for NB
 	}
 }
 ln_y_like<- sum(log(y_like))	# likelihood function
@@ -185,7 +180,7 @@ for(i in 1:G){
 	# update theta_post
 	for(k in 1:(m+1)){
 		# theta_post[i, k]<- dgamma(theta_star[k], m+1+sum(y[S[i,] == k]), table(S[i,])[k]+1)
-		theta_post[i, k]<- dbeta(theta_star[k], table(S[i,])[k]*r_star[k], 0.5+sum(y[S[i,] == k]))	# for NB
+		theta_post[i, k]<- dbeta(theta_star[k], table(S[i,])[k]*r, 0.5+sum(y[S[i,] == k]))	# for NB
 	}
 	
 	# update S_post
@@ -200,7 +195,7 @@ for(i in 1:G){
 		}
 		for(kk in 1:(m+1)){
 			# mass[tt, kk]<- eq6[tt, kk]*dpois(y[tt], theta_star[kk])
-			mass[tt, kk]<- eq6[tt, kk]*dnbinom(y[tt], r_star[kk], theta_star[kk])	# for NB
+			mass[tt, kk]<- eq6[tt, kk]*dnbinom(y[tt], r, theta_star[kk])	# for NB
 		}
 		mass[tt,]<- mass[tt,]/sum(mass[tt,])
 	}
@@ -237,7 +232,7 @@ for(i in 1:G){
 		}
 		for(kk in 1:(m+1)){
 			# mass[tt, kk]<- eq6[tt, kk]*dpois(y[tt], theta[i, kk])
-			mass[tt, kk]<- eq6[tt, kk]*dnbinom(y[tt], r[i, kk], theta[i, kk])	# for NB
+			mass[tt, kk]<- eq6[tt, kk]*dnbinom(y[tt], r, theta[i, kk])	# for NB
 		}
 		mass[tt,]<- mass[tt,]/sum(mass[tt,])
 	}
@@ -273,13 +268,12 @@ x<- raw[,1]
 # device
 pdf(file = paste(m, "Rplot.pdf", sep=''))
 # par(mfrow = c(ceiling(m/2)+1, 2))	# split plot
-par(mfrow = c(3*m+3, 3))	# split plot
+par(mfrow = c(2*m+2, 2))	# split plot
 for(k in 1:m){
 	hist(time[,k], main = paste(k, "th change-point", sep=''), xlab = "Time")
 }
 for(k in 1:(m+1)){
 	plot(density(theta[, k]), main = paste("theta", k))
-	plot(density(r[, k]), main = paste("r", k))
 }
 plot(x, y, "l", ylim = c(0, 1), xlab = "Time", ylab = "Pr(S|Y)", main = "Prob for change points")
 for(k in 1:(m+1)){
