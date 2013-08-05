@@ -101,7 +101,7 @@ while(iter < 50000){	# max iter 50000
 		# theta_cur[i]<- rgamma(1, m+1+sum(y[S_cur == i]), count[i]+2)
 	# }
 	for(i in 1:(m+1)){
-		theta_cur[i]<- rbeta(1, r*(count[i]+1), sum(y[S_cur == i])+0.5)	# for NB
+		theta_cur[i]<- rbeta(1, r*(count[i]+1)+1, sum(y[S_cur == i])+1)	# for NB
 	}
 	
 	
@@ -180,7 +180,7 @@ for(i in 1:G){
 	# update theta_post
 	for(k in 1:(m+1)){
 		# theta_post[i, k]<- dgamma(theta_star[k], m+1+sum(y[S[i,] == k]), table(S[i,])[k]+1)
-		theta_post[i, k]<- dbeta(theta_star[k], table(S[i,])[k]*r, 0.5+sum(y[S[i,] == k]))	# for NB
+		theta_post[i, k]<- dbeta(theta_star[k], table(S[i,])[k]*r+1, 1+sum(y[S[i,] == k]))	# for NB
 	}
 	
 	# update S_post
@@ -244,7 +244,7 @@ write.table(ln_theta_post_den, file = paste(m, "ln_theta_post_den.txt", sep = ''
 ln_P_post_den<- log(mean(apply(P_post, 1, prod)))
 write.table(ln_P_post_den, file = paste(m, "ln_P_post_den.txt", sep = ''))
 # ln_theta_den<- sum(log(apply(as.array(theta_star), 1, dgamma, m+1, 1)))
-ln_theta_den<- sum(log(apply(as.array(theta_star), 1, dbeta, 0, 0.5)))	# for NB
+ln_theta_den<- sum(log(apply(as.array(theta_star), 1, dbeta, 1, 1)))	# for NB
 write.table(ln_theta_den, file = paste(m, "ln_theta_den.txt", sep = ''))
 ln_P_den<- sum(log(apply(as.array(P_star[-(m+1)]), 1, dbeta, a, b)))
 write.table(ln_P_den, file = paste(m, "ln_P_den.txt", sep = ''))
@@ -275,9 +275,9 @@ for(k in 1:m){
 for(k in 1:(m+1)){
 	plot(density(theta[, k]), main = paste("theta", k))
 }
-plot(x, y, "l", ylim = c(0, 1), xlab = "Time", ylab = "Pr(S|Y)", main = "Prob for change points")
+plot(x, y, "l", xlab = "Time", ylab = "Pr(S|Y)", main = "Prob for change points")
 for(k in 1:(m+1)){
-	lines(x, S_plots[,k], col = k+1)
+	lines(x, S_plots[,k]*(max(y)-min(y))+min(y), col = k+1)
 }
 dev.off()
 
