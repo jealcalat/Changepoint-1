@@ -268,7 +268,7 @@ x<- raw[,1]
 # device
 pdf(file = paste(m, "Rplot.pdf", sep=''))
 # par(mfrow = c(ceiling(m/2)+1, 2))	# split plot
-par(mfrow = c(2*m+2, 2))	# split plot
+par(mfrow = c(m+1, 2))	# split plot
 for(k in 1:m){
 	hist(time[,k], main = paste(k, "th change-point", sep=''), xlab = "Time")
 }
