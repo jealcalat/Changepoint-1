@@ -287,7 +287,7 @@ for(k in 2:(m+1)){
 }
 par(new = T)
 plot(x, y, "l", xlab = '', ylab = '', axes = F)
-axis(4)
+axis(4, lab = "counts")
 
 
 dev.off()
