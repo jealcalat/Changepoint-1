@@ -281,13 +281,13 @@ for(k in 1:(m+1)){
 dev.off()
 
 pdf(file = paste(m, "detect.pdf", sep=''))
-plot(x, S_plots[,1], "l", col = 2, xlab = "Time", ylab = "Pr(S|Y)", main = "Prob for change points")
+plot(x, S_plots[,1], "l", col = 2, ylim = c(0, 1), xlab = "Time", ylab = "Pr(S|Y)", main = "Prob for change points")
 for(k in 2:(m+1)){
 	lines(x, S_plots[,k], col = k+1)
 }
 par(new = T)
 plot(x, y, "l", xlab = '', ylab = '', axes = F)
-axis(4, lab = "counts")
+axis(4)
 
 
 dev.off()
