@@ -266,18 +266,28 @@ S_plots<- apply(S_plot, c(2,3), mean)
 x<- raw[,1]
 
 # device
-pdf(file = paste(m, "Rplot.pdf", sep=''))
-# par(mfrow = c(ceiling(m/2)+1, 2))	# split plot
-par(mfrow = c(m+1, 2))	# split plot
+pdf(file = paste(m, "hist.pdf", sep=''))
+par(mfrow = (ceiling(m/2), 2))	# split plot
 for(k in 1:m){
 	hist(time[,k], main = paste(k, "th change-point", sep=''), xlab = "Time")
 }
+dev.off()
+
+pdf(file = paste(m, "density.pdf", sep=''))
+par(mfrow = (ceiling((m+1)/2), 2))	# split plot
 for(k in 1:(m+1)){
 	plot(density(theta[, k]), main = paste("theta", k))
 }
-plot(x, y, "l", xlab = "Time", ylab = "Pr(S|Y)", main = "Prob for change points")
-for(k in 1:(m+1)){
-	lines(x, S_plots[,k]*(max(y)-min(y))+min(y), col = k+1)
+dev.off()
+
+pdf(file = paste(m, "detect.pdf", sep=''))
+plot(x, y, "l", xlab = NULL, ylab = NULL, main = NULL)
+axis(4, pretty(c(min(y), max(y)))
+
+plot(x, S_plots[,1], "l", col = 2, xlab = "Time", ylab = "Pr(S|Y)", main = "Prob for change points")
+axis(2, pretty(c(0, 1)))
+for(k in 2:(m+1)){
+	lines(x, S_plots[,k], col = k+1)
 }
 dev.off()
 
