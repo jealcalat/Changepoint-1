@@ -286,8 +286,8 @@ for(k in 2:(m+1)){
 	lines(x, S_plots[,k], col = k+1)
 }
 par(new = T)
-plot(x, y, "l", axes = F)
-axis(4, pretty(c(min(y), max(y)))
+plot(x, y, "l", xlab = '', ylab = '', axes = F)
+axis(4)
 
 
 dev.off()
