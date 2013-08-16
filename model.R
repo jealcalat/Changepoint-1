@@ -281,14 +281,15 @@ for(k in 1:(m+1)){
 dev.off()
 
 pdf(file = paste(m, "detect.pdf", sep=''))
-plot(x, y, "l", xlab = NULL, ylab = NULL, main = NULL)
-axis(4, pretty(c(min(y), max(y)))
-
 plot(x, S_plots[,1], "l", col = 2, xlab = "Time", ylab = "Pr(S|Y)", main = "Prob for change points")
-axis(2, pretty(c(0, 1)))
 for(k in 2:(m+1)){
 	lines(x, S_plots[,k], col = k+1)
 }
+par(new = T)
+plot(x, y, "l", axes = F)
+axis(4, pretty(c(min(y), max(y)))
+
+
 dev.off()
 
 
