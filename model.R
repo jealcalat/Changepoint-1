@@ -267,14 +267,14 @@ x<- raw[,1]
 
 # device
 pdf(file = paste(m, "hist.pdf", sep=''))
-par(mfrow = (ceiling(m/2), 2))	# split plot
+par(mfrow = c(ceiling(m/2), 2))	# split plot
 for(k in 1:m){
 	hist(time[,k], main = paste(k, "th change-point", sep=''), xlab = "Time")
 }
 dev.off()
 
 pdf(file = paste(m, "density.pdf", sep=''))
-par(mfrow = (ceiling((m+1)/2), 2))	# split plot
+par(mfrow = c(ceiling((m+1)/2), 2))	# split plot
 for(k in 1:(m+1)){
 	plot(density(theta[, k]), main = paste("theta", k))
 }
