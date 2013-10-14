@@ -263,6 +263,8 @@ write.table(region, file = paste(m, "region.txt", sep = ''))
 
 # plots
 S_plots<- apply(S_plot, c(2,3), mean)
+write.table(S_plots, file = paste(m, "Splot.txt", sep = ''))
+
 x<- raw[,1]
 
 # device
@@ -288,6 +290,13 @@ for(k in 2:(m+1)){
 par(new = T)
 plot(x, y, "l", xlab = '', ylab = '', axes = F)
 axis(4)
+dev.off()
+
+pdf(file = paste(m, "detectPROB.pdf", sep=''))
+plot(x, S_plots[,1], "l", col = 2, ylim = c(0, 1), xlab = "Time", ylab = "Pr(S|Y)", main = "Prob for change points")
+for(k in 2:(m+1)){
+	lines(x, S_plots[,k], col = k+1)
+}
 dev.off()
 
 
